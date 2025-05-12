@@ -1,0 +1,23 @@
+[build]
+release = false
+dist = "dist"
+public_url = "/"
+filehash = true
+
+[watch]
+watch = []
+ignore = []
+
+[serve]
+address = "127.0.0.1"
+port = 3000
+open = false
+no_autoreload = false
+
+[clean]
+dist = "dist"
+cargo = false
+
+[tools]
+wasm_bindgen = "0.2.100"
+tailwindcss = "4.1.6"

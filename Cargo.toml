@@ -1,0 +1,16 @@
+[package]
+name = "frontend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+console_error_panic_hook = "0.1.7"
+leptos = { version = "0.8.2", features = ["csr"] }
+leptos_meta = "0.8.2"
+leptos_router = "0.8.2"
+wasm-bindgen = "0.2.100"
+
+[lib]
+name = "hotel"
+path = "src/lib.rs"
+crate-type = ["lib"]

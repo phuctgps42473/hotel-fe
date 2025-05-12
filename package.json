@@ -1,0 +1,16 @@
+{
+  "name": "hello",
+  "private": true,
+  "version": "0.1.0",
+  "description": "",
+  "scripts": {
+    "build": "npx @tailwindcss/cli -i ./style/input.css -o ./style/output.css",
+    "watch": "npx @tailwindcss/cli -i ./style/input.css -o ./style/output.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
+    "daisyui": "^5.0.35",
+    "tailwindcss": "^4.1.6"
+  }
+}
