@@ -5,3 +5,5 @@ pub mod libs;
 pub mod pages;
 
 pub use pages::Home;
+
+pub use features::shared::layouts;

@@ -5,7 +5,9 @@ module.exports = {
     files: ["*.html", "./src/**/*.rs"],
   },
   plugins: [
-    require("daisyui"), require("@tailwindcss/typography")
+    // require("daisyui"),
+    // require("@tailwindcss/typography"),
+    // require("@tailwindcss/forms")
   ],
   theme: {
     // fontFamily: {
