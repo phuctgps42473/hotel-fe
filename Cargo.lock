@@ -476,11 +476,13 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "console_error_panic_hook",
+ "js-sys",
  "leptos 0.8.2",
  "leptos-use",
  "leptos_meta",
  "leptos_router",
  "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
