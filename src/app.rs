@@ -1,4 +1,4 @@
-use crate::{pages::{contact::Contact, landing_page::LandingPage}, Home};
+use crate::{pages::{contact::Contact, landing_page::LandingPage, register::Register}, Home};
 
 use leptos::prelude::*;
 use leptos_meta::*;
@@ -20,6 +20,7 @@ pub fn App() -> impl IntoView {
                 <Route path=StaticSegment("") view=LandingPage/>
                 <Route path=StaticSegment("home") view=Home/>
                 <Route path=StaticSegment("contact") view=Contact/>
+                <Route path=StaticSegment("register") view=Register/>
             </Routes>
         </Router>
     }
