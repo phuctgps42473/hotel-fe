@@ -6,18 +6,14 @@ edition = "2021"
 [dependencies]
 chrono = "0.4.41"
 console_error_panic_hook = "0.1.7"
+js-sys = "0.3.77"
 leptos = { version = "0.8.2", features = ["csr"] }
 leptos-use = { version = "0.15.7", features = ["on_click_outside"] }
 leptos_meta = "0.8.2"
 leptos_router = "0.8.2"
 wasm-bindgen = "0.2.100"
+web-sys = "0.3.77"
 
 [lib]
 name = "hotel"
 path = "src/lib.rs"
-leptos_heroicons = { git = "https://github.com/bbstilson/leptos_heroicons.git", features = [
-    "24-solid",
-    "24-outline",
-    "20-solid",
-    "16-solid"
-]}
