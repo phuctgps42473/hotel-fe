@@ -3,40 +3,40 @@ use leptos::prelude::*;
 #[component]
 pub fn Footer() -> impl IntoView {
     view! {
-      <footer class="px-6 py-10 bg-white border-t">
-        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 text-sm">
-          <div>
-            <div class="font-bold text-teal-600 text-xl mb-2">Bubu.vn</div>
-            <p>Chào mừng quý khách đến với chương trình tour du lịch tuyệt vời</p>
-            <div class="mt-2 flex gap-2">
-              <a href="#"><img src="/icons/facebook.svg" alt="fb" class="w-5" /></a>
-              <a href="#"><img src="/icons/twitter.svg" alt="tw" class="w-5" /></a>
-              <a href="#"><img src="/icons/instagram.svg" alt="ig" class="w-5" /></a>
-            </div>
-          </div>
-          <div>
-            <h4 class="font-bold mb-2">Thông tin liên hệ</h4>
-            <p>90, K***, TP HCM</p>
-            <p>vanphu*****@mail.com</p>
-            <p>+0985020697</p>
-          </div>
-          <div>
-            <h4 class="font-bold mb-2">Tài khoản</h4>
-            <ul>
-              <li>Đăng nhập / Đăng ký</li>
-              <li>Lịch sử đặt</li>
-              <li>Yêu thích</li>
-            </ul>
-          </div>
-          <div>
-            <h4 class="font-bold mb-2">Liên kết nhanh</h4>
-            <ul>
-              <li>Khám phá</li>
-              <li>Loại phòng</li>
-              <li>Liên hệ</li>
-            </ul>
-          </div>
-        </div>
-      </footer>
+                <footer class="footer flex flex-col justify-center items-center md:flex-row md:justify-around  p-10 bg-base-100 text-base-content border-t border-gray-200">
+                    <div class="w-full md:w-auto">
+                        <h3 class="text-2xl font-bold text-base-content mb-4">"ELARIS HOTEL"</h3>
+                        <p class="text-base-content mb-4">"Chào mừng quý khách đến với chương trình tour du lịch tuyệt vời của chúng tôi!"</p>
+                        <div class="grid grid-flow-col gap-4 text-2xl">
+                            <a href="#" class="text-base-content hover:text-primary"><i class="fab fa-youtube"></i></a>
+                            <a href="#" class="text-base-content hover:text-primary"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="text-base-content hover:text-primary"><i class="fab fa-telegram-plane"></i></a>
+                            <a href="#" class="text-base-content hover:text-primary"><i class="fab fa-whatsapp"></i></a>
+                        </div>
+                    </div>
+                    <div class="w-full md:w-auto">
+                        <span class="footer-title text-base-content">"Thông tin liên hệ"</span>
+                        <a class="link link-hover text-base-content hover:text-primary">127 Lê Văn Chí</a>
+                        <a class="link link-hover text-base-content hover:text-primary">Tp HỒ CHÍ MINH</a>
+                        <a class="link link-hover text-base-content hover:text-primary">bugsix.contact@gmail.com</a>
+                        <a class="link link-hover text-base-content hover:text-primary">+84983692067</a>
+                        <a class="link link-hover text-base-content hover:text-primary">Yêu thích</a>
+                    </div>
+                    <div class="w-full md:w-auto">
+                        <span class="footer-title text-base-content">"Tài khoản"</span>
+                        <a class="link link-hover text-base-content hover:text-primary">Tài khoản của tôi</a>
+                        <a class="link link-hover text-base-content hover:text-primary">Đăng nhập/ Đăng ký</a>
+                        <a class="link link-hover text-base-content hover:text-primary">Xe đẩy</a>
+                        <a class="link link-hover text-base-content hover:text-primary">Cửa hàng</a>
+                        <a class="link link-hover text-base-content hover:text-primary">Yêu thích</a>
+                    </div>
+                    <div class="w-full md:w-auto">
+                        <span class="footer-title text-base-content">"Liên kết nhanh"</span>
+                        <a class="link link-hover text-base-content hover:text-primary">Bảo mật</a>
+                        <a class="link link-hover text-base-content hover:text-primary">Điều khoản</a>
+                        <a class="link link-hover text-base-content hover:text-primary">FAQ</a>
+                        <a class="link link-hover text-base-content hover:text-primary">Liên hệ</a>
+                    </div>
+                </footer>
     }
 }
