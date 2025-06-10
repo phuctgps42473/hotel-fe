@@ -1,6 +1,6 @@
 use leptos::prelude::*;
 
-use crate::features::shared::components::calendar::Calendar;
+use crate::{features::shared::components::calendar::Calendar, layouts::public::{footer::Footer, header::Header}};
 
 #[component]
 pub fn LandingPage() -> impl IntoView {
@@ -12,33 +12,7 @@ pub fn LandingPage() -> impl IntoView {
 
     view! {
     <div>
-                <header class="navbar bg-base-100 shadow-sm px-4 md:px-8 lg:px-16 py-4">
-                    <div class="flex-1">
-                        <a class="text-2xl font-bold text-base-content" href="#">"ELARIS HOTEL"</a>
-                    </div>
-                    <div class="flex-none hidden lg:flex">
-                        <ul class="menu menu-horizontal p-0">
-                            <li><a class="font-semibold text-base-content hover:text-primary" href="#">"Trang chủ"</a></li>
-                            <li><a class="font-semibold text-base-content hover:text-primary" href="#">"Loại phòng"</a></li>
-                            <li><a class="font-semibold text-base-content hover:text-primary" href="#">"Khám phá"</a></li>
-                            <li><a class="font-semibold text-base-content hover:text-primary" href="#">"Thông tin"</a></li>
-                            <li><a class="font-semibold text-base-content hover:text-primary" href="#">"Liên hệ"</a></li>
-                        </ul>
-                    </div>
-                    <div class="flex-none hidden lg:flex ml-4">
-                        <a class="btn btn-ghost text-primary hover:text-primary-focus font-semibold" href="#">"Đăng nhập"</a> // Sử dụng primary-focus cho hover
-                        <a class="btn btn-primary text-primary-content font-semibold" href="#">"Đăng ký"</a> // btn-primary tự động dùng bg-primary và text-primary-content
-                    </div>
-                    <div class="flex-none lg:hidden">
-                        <label
-                            // for_="my-drawer-3"
-                            class="btn btn-square btn-ghost"
-                            on:click=move |_| set_is_drawer_open.update(|open| *open = !*open)
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                        </label>
-                    </div>
-                </header>
+    <Header />
 
                 <div class="drawer">
                     <input
@@ -217,13 +191,6 @@ pub fn LandingPage() -> impl IntoView {
                     </div>
                 </section>
 
-                // Testimonials/Philosophy Section
-                // bg-white -> bg-base-100
-                // text-gray-800 -> text-base-content
-                // text-teal-custom -> text-primary
-                // text-gray-700 -> text-base-content
-                // bg-teal-500 -> bg-primary (đã được xử lý bởi btn-primary)
-                // hover:bg-teal-600 -> hover:bg-primary (đã được xử lý bởi btn-primary)
                 <section class="py-16 px-4 md:px-8 lg:px-16 bg-base-100">
                     <div class="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-8">
                         <div class="lg:w-1/2 relative w-full h-64 md:h-96 lg:h-auto overflow-hidden rounded-xl shadow-lg">
@@ -253,11 +220,6 @@ pub fn LandingPage() -> impl IntoView {
                 </section>
 
                 // Customer Feedback Section
-                // text-gray-800 -> text-base-content
-                // border-3 border-teal-custom -> border-3 border-primary
-                // text-teal-custom -> text-primary
-                // text-gray-700 -> text-base-content
-                // text-teal-500 -> text-primary
                 <section class="py-16 px-4 md:px-8 lg:px-16">
                     <h2 class="text-4xl font-bold text-base-content text-center mb-12">"CẢM NHẬN CỦA KHÁCH HÀNG"</h2>
                     <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-start gap-12">
@@ -313,41 +275,7 @@ pub fn LandingPage() -> impl IntoView {
                 </section>
 
                 // Footer
-                <footer class="footer flex flex-col justify-center items-center md:flex-row md:justify-around  p-10 bg-base-100 text-base-content border-t border-gray-200">
-                    <div class="w-full md:w-auto">
-                        <h3 class="text-2xl font-bold text-base-content mb-4">"ELARIS HOTEL"</h3>
-                        <p class="text-base-content mb-4">"Chào mừng quý khách đến với chương trình tour du lịch tuyệt vời của chúng tôi!"</p>
-                        <div class="grid grid-flow-col gap-4 text-2xl">
-                            <a href="#" class="text-base-content hover:text-primary"><i class="fab fa-youtube"></i></a>
-                            <a href="#" class="text-base-content hover:text-primary"><i class="fab fa-facebook-f"></i></a>
-                            <a href="#" class="text-base-content hover:text-primary"><i class="fab fa-telegram-plane"></i></a>
-                            <a href="#" class="text-base-content hover:text-primary"><i class="fab fa-whatsapp"></i></a>
-                        </div>
-                    </div>
-                    <div class="w-full md:w-auto">
-                        <span class="footer-title text-base-content">"Thông tin liên hệ"</span>
-                        <a class="link link-hover text-base-content hover:text-primary">127 Lê Văn Chí</a>
-                        <a class="link link-hover text-base-content hover:text-primary">Tp HỒ CHÍ MINH</a>
-                        <a class="link link-hover text-base-content hover:text-primary">bugsix.contact@gmail.com</a>
-                        <a class="link link-hover text-base-content hover:text-primary">+84983692067</a>
-                        <a class="link link-hover text-base-content hover:text-primary">Yêu thích</a>
-                    </div>
-                    <div class="w-full md:w-auto">
-                        <span class="footer-title text-base-content">"Tài khoản"</span>
-                        <a class="link link-hover text-base-content hover:text-primary">Tài khoản của tôi</a>
-                        <a class="link link-hover text-base-content hover:text-primary">Đăng nhập/ Đăng ký</a>
-                        <a class="link link-hover text-base-content hover:text-primary">Xe đẩy</a>
-                        <a class="link link-hover text-base-content hover:text-primary">Cửa hàng</a>
-                        <a class="link link-hover text-base-content hover:text-primary">Yêu thích</a>
-                    </div>
-                    <div class="w-full md:w-auto">
-                        <span class="footer-title text-base-content">"Liên kết nhanh"</span>
-                        <a class="link link-hover text-base-content hover:text-primary">Bảo mật</a>
-                        <a class="link link-hover text-base-content hover:text-primary">Điều khoản</a>
-                        <a class="link link-hover text-base-content hover:text-primary">FAQ</a>
-                        <a class="link link-hover text-base-content hover:text-primary">Liên hệ</a>
-                    </div>
-                </footer>
+                <Footer />
             </div>
                  }
 }
