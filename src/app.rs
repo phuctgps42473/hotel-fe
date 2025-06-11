@@ -1,4 +1,7 @@
-use crate::{pages::{contact::Contact, landing_page::LandingPage, register::Register}, Home};
+use crate::{
+    pages::{contact::Contact, landing_page::LandingPage, register::Register},
+    Home,
+};
 
 use leptos::prelude::*;
 use leptos_meta::*;

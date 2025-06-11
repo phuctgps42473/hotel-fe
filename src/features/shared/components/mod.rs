@@ -1,2 +1,2 @@
-pub mod modal;
 pub mod calendar;
+pub mod modal;

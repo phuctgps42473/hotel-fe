@@ -36,10 +36,10 @@ pub fn SearchBar() -> impl IntoView {
     );
 
     let handle_search = move |_| {
-      leptos::logging::log!("{}", location.get());
-      leptos::logging::log!("{}", checkin_date.get());
-      leptos::logging::log!("{}", checkout_date.get());
-      leptos::logging::log!("{}", guest_count.get());
+        leptos::logging::log!("{}", location.get());
+        leptos::logging::log!("{}", checkin_date.get());
+        leptos::logging::log!("{}", checkout_date.get());
+        leptos::logging::log!("{}", guest_count.get());
     };
 
     view! {
