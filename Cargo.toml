@@ -8,6 +8,7 @@ chrono = "0.4.41"
 console_error_panic_hook = "0.1.7"
 eyre = "0.6.12"
 js-sys = "0.3.77"
+leptoaster = "0.2.3"
 leptos = { version = "0.8.2", features = ["csr"] }
 leptos-use = { version = "0.15.7", features = ["on_click_outside"] }
 leptos_meta = "0.8.2"
