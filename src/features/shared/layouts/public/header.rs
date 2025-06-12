@@ -10,7 +10,7 @@ pub fn Header() -> impl IntoView {
                     </div>
                     <div class="flex-none hidden lg:flex">
                         <ul class="menu menu-horizontal p-0">
-                            <li><a class="font-semibold text-base-content hover:text-primary" href="#">"Trang chủ"</a></li>
+                            <li><a class="font-semibold text-base-content hover:text-primary" href="/">"Trang chủ"</a></li>
                             <li><a class="font-semibold text-base-content hover:text-primary" href="#">"Loại phòng"</a></li>
                             <li><a class="font-semibold text-base-content hover:text-primary" href="#">"Khám phá"</a></li>
                             <li><a class="font-semibold text-base-content hover:text-primary" href="#">"Thông tin"</a></li>
@@ -18,8 +18,8 @@ pub fn Header() -> impl IntoView {
                         </ul>
                     </div>
                     <div class="flex-none hidden lg:flex ml-4">
-                        <a class="btn btn-ghost text-primary hover:text-primary-focus font-semibold" href="#">"Đăng nhập"</a> // Sử dụng primary-focus cho hover
-                        <a class="btn btn-primary text-primary-content font-semibold" href="#">"Đăng ký"</a> // btn-primary tự động dùng bg-primary và text-primary-content
+                        <a class="btn btn-ghost text-primary hover:text-primary-focus font-semibold" href="#">"Đăng nhập"</a>
+                        <a class="btn btn-primary text-primary-content font-semibold" href="/register">"Đăng ký"</a>
                     </div>
                     <div class="flex-none lg:hidden">
                         <label

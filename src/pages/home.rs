@@ -1,4 +1,4 @@
-use crate::features::{home::components::category_bar::CategoryBar};
+use crate::features::home::components::category_bar::CategoryBar;
 use crate::features::shared::layouts::user::layout::Layout;
 use leptos::prelude::*;
 
@@ -91,7 +91,6 @@ pub struct Place {
     pub rating: f32,
     pub is_superhost: bool,
 }
-
 
 #[component]
 pub fn PlaceCard(place: Place) -> impl IntoView {

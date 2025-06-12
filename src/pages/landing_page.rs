@@ -1,6 +1,9 @@
 use leptos::prelude::*;
 
-use crate::{features::shared::components::calendar::Calendar, layouts::public::{footer::Footer, header::Header}};
+use crate::{
+    features::shared::components::calendar::Calendar,
+    layouts::public::{footer::Footer, header::Header},
+};
 
 #[component]
 pub fn LandingPage() -> impl IntoView {
