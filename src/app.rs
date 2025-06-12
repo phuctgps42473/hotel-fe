@@ -3,6 +3,7 @@ use crate::{
     Home,
 };
 
+use leptoaster::*;
 use leptos::prelude::*;
 use leptos_meta::*;
 use leptos_router::{
@@ -12,19 +13,21 @@ use leptos_router::{
 
 #[component]
 pub fn App() -> impl IntoView {
+    provide_toaster();
     provide_meta_context();
 
     view! {
-        // <Stylesheet id="leptos" href="/style/output.css"/>
+    // <Stylesheet id="leptos" href="/style/output.css"/>
 
-        <Link rel="shortcut icon" type_="image/ico" href="/favicon.ico"/>
-        <Router>
-            <Routes fallback=|| "Page not found.">
-                <Route path=StaticSegment("") view=LandingPage/>
-                <Route path=StaticSegment("home") view=Home/>
-                <Route path=StaticSegment("contact") view=Contact/>
-                <Route path=StaticSegment("register") view=Register/>
-            </Routes>
-        </Router>
-    }
+    <Link rel="shortcut icon" type_="image/ico" href="/favicon.ico"/>
+    <Toaster stacked={true} />
+    <Router>
+        <Routes fallback=|| "Page not found.">
+            <Route path=StaticSegment("") view=LandingPage/>
+            <Route path=StaticSegment("home") view=Home/>
+            <Route path=StaticSegment("contact") view=Contact/>
+            <Route path=StaticSegment("register") view=Register/>
+        </Routes>
+    </Router>
+     }
 }
