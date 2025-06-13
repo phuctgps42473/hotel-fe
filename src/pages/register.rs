@@ -65,9 +65,9 @@ pub fn Register() -> impl IntoView {
         } else {
             set_fullname_error.set("".to_string());
             set_disable_button.set(
-                email_error.read().is_empty()
-                    && phone_error.read().is_empty()
-                    && password_error.read().is_empty(),
+                !email_error.read().is_empty()
+                    || !phone_error.read().is_empty()
+                    || !password_error.read().is_empty(),
             );
             return;
         }
@@ -93,9 +93,9 @@ pub fn Register() -> impl IntoView {
         } else {
             set_email_error.set("".to_string());
             set_disable_button.set(
-                fullname_error.read().is_empty()
-                    && phone_error.read().is_empty()
-                    && password_error.read().is_empty(),
+                !fullname_error.read().is_empty()
+                    || !phone_error.read().is_empty()
+                    || !password_error.read().is_empty(),
             );
             return;
         }
@@ -122,9 +122,9 @@ pub fn Register() -> impl IntoView {
         } else {
             set_phone_error.set("".to_string());
             set_disable_button.set(
-                fullname_error.read().is_empty()
-                    && email_error.read().is_empty()
-                    && password_error.read().is_empty(),
+                !fullname_error.read().is_empty()
+                    || !email_error.read().is_empty()
+                    || !password_error.read().is_empty(),
             );
             return;
         }
@@ -166,9 +166,9 @@ pub fn Register() -> impl IntoView {
         } else {
             set_password_error.set("".to_string());
             set_disable_button.set(
-                fullname.read().is_empty()
-                    && phone_error.read().is_empty()
-                    && email_error.read().is_empty(),
+                !fullname.read().is_empty()
+                    || !phone_error.read().is_empty()
+                    || !email_error.read().is_empty(),
             );
             return;
         }
