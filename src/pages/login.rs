@@ -1,13 +1,16 @@
 use std::time::Duration;
 
-use js_sys::RegExp;
+use js_sys::{RegExp, JSON};
 use leptoaster::expect_toaster;
 use leptos::{prelude::*, reactive::spawn_local};
 use serde::{Deserialize, Serialize};
-use wasm_bindgen::{JsCast, JsValue};
-use web_sys::{Event, HtmlInputElement, SubmitEvent};
+use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
+use web_sys::{Event, HtmlInputElement, MessageEvent, SubmitEvent};
 
-use crate::libs::fetcher::fetch;
+use crate::{
+    layouts::public::{footer::Footer, header::Header},
+    libs::fetcher::fetch,
+};
 
 #[derive(Serialize)]
 struct LoginForm {
@@ -104,14 +107,17 @@ pub fn Login() -> impl IntoView {
         }
         set_disable_button.set(true);
     };
+
+    let navigate_clone = navigate.clone();
+    let toaster_clone = toaster.clone();
     let handle_submit = move |e: SubmitEvent| {
         e.prevent_default();
-        let navigate = navigate.clone();
 
         let email = email.get();
         let password = password.get();
 
-        let toaster = toaster.clone();
+        let navigate_clone = navigate_clone.clone();
+        let toaster_clone = toaster_clone.clone();
         spawn_local(async move {
             match fetch::<LoginResponse>(
                 "login",
@@ -122,22 +128,17 @@ pub fn Login() -> impl IntoView {
             {
                 Ok(body) => match body.code {
                     200 => {
-                        toaster.success("Successfully Logged In.Redirecting to HomePage");
-                        window()
-                            .local_storage()
-                            .unwrap()
-                            .unwrap()
-                            .set("accessToken", &body.data.unwrap().access_token.unwrap())
-                            .unwrap();
+                        toaster_clone.success("Successfully Logged In.Redirecting to HomePage");
+                        set_local_storage("accessToken", &body.data.unwrap().access_token.unwrap());
                         set_timeout(
                             move || {
-                                navigate("/home", Default::default());
+                                navigate_clone("/home", Default::default());
                             },
                             Duration::from_millis(1000),
                         );
                     }
-                    401 => toaster.error(body.error.unwrap().message.unwrap()),
-                    500 => toaster.error("Something wrong with the system"),
+                    401 => toaster_clone.error(body.error.unwrap().message.unwrap()),
+                    500 => toaster_clone.error("Something wrong with the system"),
                     _ => leptos::logging::log!("Unexpected Response Status"),
                 },
                 Err(error) => {
@@ -147,7 +148,42 @@ pub fn Login() -> impl IntoView {
         });
     };
 
+    let toaster_clone1 = toaster.clone();
+    let navigate_clone1 = navigate.clone();
+    Effect::new(move || {
+        let toaster_clone1 = toaster_clone1.clone();
+        let navigate_clone1 = navigate_clone1.clone();
+        let handler = Closure::wrap(Box::new(move |e: MessageEvent| {
+            if e.origin().eq("http://localhost:8080") {
+                let json = JSON::stringify(&e.data()).unwrap().as_string().unwrap();
+                let data: LoginResponse = serde_json::from_str(&json).unwrap();
+
+                toaster_clone1.success("Successfully Logged In.Redirecting to HomePage");
+                set_local_storage("accessToken", &data.access_token.unwrap());
+                navigate_clone1("/home", Default::default());
+            }
+        }) as Box<dyn FnMut(_)>);
+
+        window()
+            .add_event_listener_with_callback("message", handler.as_ref().unchecked_ref())
+            .unwrap();
+
+        handler.forget();
+    });
+
+    let oauth_login = |_| {
+        window()
+            .open_with_url_and_target_and_features(
+                &generate_google_login_url("/"),
+                "Google Oauth Window",
+                "popup,left=400,width=500,height=800",
+            )
+            .unwrap()
+            .unwrap();
+    };
+
     view! {
+      <Header />
       <div class="min-h-screen flex flex-col bg-[url(/images/register-bg.jpg)] bg-cover bg-center bg-fixed">
               // Main Login Content
               <main class="flex-grow flex items-center justify-center p-4 md:p-8">
@@ -206,7 +242,7 @@ pub fn Login() -> impl IntoView {
 
                           <div class="divider text-gray-400 text-sm my-6">"Hoặc tiếp tục với"</div>
 
-                          <button class="btn btn-outline w-full border-gray-300 hover:border-teal-custom hover:bg-teal-50 hover:text-gray-800 text-gray-600 font-semibold py-3 flex items-center justify-center rounded-md">
+                          <button on:click={oauth_login} class="btn btn-outline w-full border-gray-300 hover:border-teal-custom hover:bg-teal-50 hover:text-gray-800 text-gray-600 font-semibold py-3 flex items-center justify-center rounded-md">
                               <img src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_18dp.png" alt="Google icon" class="w-5 h-5 mr-3"/>
                               "Đăng nhập với Google"
                           </button>
@@ -214,6 +250,7 @@ pub fn Login() -> impl IntoView {
                   </div>
               </main>
           </div>
+          <Footer />
     }
 }
 
@@ -252,4 +289,24 @@ pub fn Input(
                                 </Show>
                               </div>
     }
+}
+
+fn generate_google_login_url(redirect_path: &str) -> String {
+    let client_id = "778948573201-rlq52k0i3cqc12oeponb08qgq6s7h0pt.apps.googleusercontent.com";
+    let redirect_uri = "http://localhost:8080/api/oauth/code_grant/google";
+    let response_type = "code";
+    let scope = "openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
+    let include_granted_scopes = "true";
+    let prompt = "consent";
+
+    format!("https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&redirect_uri={redirect_uri}&response_type={response_type}&scope={scope}&state={redirect_path}&include_granted_scopes={include_granted_scopes}&prompt={prompt}")
+}
+
+fn set_local_storage(key: &str, value: &str) {
+    window()
+        .local_storage()
+        .unwrap()
+        .unwrap()
+        .set(key, value)
+        .unwrap();
 }
