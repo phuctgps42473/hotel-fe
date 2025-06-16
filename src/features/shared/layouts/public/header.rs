@@ -18,7 +18,7 @@ pub fn Header() -> impl IntoView {
                         </ul>
                     </div>
                     <div class="flex-none hidden lg:flex ml-4">
-                        <a class="btn btn-ghost text-primary hover:text-primary-focus font-semibold" href="#">"Đăng nhập"</a>
+                        <a class="btn btn-ghost text-primary hover:text-primary-focus font-semibold" href="/login">"Đăng nhập"</a>
                         <a class="btn btn-primary text-primary-content font-semibold" href="/register">"Đăng ký"</a>
                     </div>
                     <div class="flex-none lg:hidden">
