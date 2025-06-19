@@ -1,7 +1,7 @@
 use crate::{
     pages::{
-        contact::Contact, landing_page::LandingPage, login::Login, register::Register,
-        room_details::RoomDetails,
+        contact::Contact, landing_page::LandingPage, login::Login, not_found::NotFound,
+        register::Register, room_details::RoomDetails,
     },
     Home,
 };
@@ -31,7 +31,7 @@ pub fn App() -> impl IntoView {
             <Route path=StaticSegment("contact") view=Contact/>
             <Route path=StaticSegment("register") view=Register/>
             <Route path=StaticSegment("login") view=Login/>
-            <ParentRoute path=path!("rooms") view=RoomDetails>
+            <ParentRoute path=path!("rooms") view=NotFound>
               <Route path=path!(":id") view=RoomDetails/>
               <Route path=path!("") view=|| "Not Found"/>
             </ParentRoute>
