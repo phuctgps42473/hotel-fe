@@ -3,5 +3,6 @@ pub mod home;
 pub mod landing_page;
 pub mod register;
 pub mod login;
+pub mod booking;
 
 pub use home::Home;
