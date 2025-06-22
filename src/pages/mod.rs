@@ -5,5 +5,6 @@ pub mod register;
 pub mod login;
 pub mod booking;
 pub mod payment;
+pub mod not_found;
 
 pub use home::Home;
