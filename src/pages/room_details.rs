@@ -185,7 +185,8 @@ pub fn RoomDetails() -> impl IntoView {
                             <li>Phù hợp cho 2 người lớn</li>
                             <li>Bao gồm bữa sáng</li>
                             <li>Không hoàn hủy</li>
-                            <li>Nhận phòng: từ 14:00 | Trả phòng: trước 12:00</li>
+                            <li>Nhận phòng: từ 14:00</li>
+                            <li>Trả phòng: trước 12:00</li>
                         </ul>
 
                         <button class="btn btn-primary w-full text-primary-content rounded-[var(--radius-box)] text-lg py-3 mb-4">

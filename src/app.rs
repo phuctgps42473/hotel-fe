@@ -25,16 +25,13 @@ pub fn App() -> impl IntoView {
     <Link rel="shortcut icon" type_="image/ico" href="/favicon.ico"/>
     <Toaster stacked={true} />
     <Router>
-        <Routes fallback=|| "Page not found.">
+        <Routes fallback=NotFound>
             <Route path=StaticSegment("") view=LandingPage/>
             <Route path=StaticSegment("home") view=Home/>
             <Route path=StaticSegment("contact") view=Contact/>
             <Route path=StaticSegment("register") view=Register/>
             <Route path=StaticSegment("login") view=Login/>
-            <ParentRoute path=path!("rooms") view=NotFound>
-              <Route path=path!(":id") view=RoomDetails/>
-              <Route path=path!("") view=|| "Not Found"/>
-            </ParentRoute>
+            <Route path=path!("rooms/:id") view=RoomDetails/>
         </Routes>
     </Router>
      }
