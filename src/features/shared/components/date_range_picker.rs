@@ -62,6 +62,6 @@ pub fn DateRangePicker(id: String, date_range_setter: WriteSignal<String>) -> im
     });
 
     view! {
-      <input readonly type="text" id={id_cloned} />
+      <input class="p-0" type="date" id={id_cloned} />
     }
 }
