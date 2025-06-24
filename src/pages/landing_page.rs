@@ -1,17 +1,41 @@
 use leptos::prelude::*;
+use leptos_router::{hooks::use_navigate, NavigateOptions};
 
 use crate::{
-    features::shared::components::calendar::Calendar,
+    features::shared::components::search_bar::SearchBar,
     layouts::public::{footer::Footer, header::Header},
 };
 
 #[component]
 pub fn LandingPage() -> impl IntoView {
     let (is_drawer_open, set_is_drawer_open) = signal(false);
-    let (checkin, set_checkin) = signal(String::new());
-    let (checkout, set_checkout) = signal(String::new());
+    let (date_range, set_date_range) = signal(String::new());
     let (room_type, set_room_type) = signal(String::new());
     let (guest_count, set_guest_count) = signal(0);
+
+    let get_check_in_out = move || {
+        date_range
+            .get()
+            .split_once(" to ")
+            .and_then(|(ckin, ckout)| Some((ckin.to_string(), ckout.to_string())))
+    };
+
+    let navigate = use_navigate();
+    let handle_find_rooms = move || {
+        if let Some((checkin, checkout)) = get_check_in_out() {
+            let mut search_path = format!("/search?from={}&to={}", checkin, checkout);
+
+            let room_type = room_type.get();
+            if !room_type.is_empty() {
+                search_path.push_str(&format!("&type={}", room_type));
+            };
+            let guest_count = guest_count.get();
+            if guest_count != 0 {
+                search_path.push_str(&format!("&guest={}", guest_count));
+            };
+            navigate(&search_path, NavigateOptions::default())
+        }
+    };
 
     view! {
     <div>
@@ -56,44 +80,7 @@ pub fn LandingPage() -> impl IntoView {
                             <i class="fas fa-map-marker-alt mr-2"></i>" ĐẶT PHÒNG"
                         </button>
 
-                        // Booking Form
-                        <div class="bg-base-100 bg-opacity-90 rounded-xl p-6 md:p-8 shadow-lg flex flex-col md:flex-row items-center justify-around gap-4 mx-auto max-w-5xl">
-                            <div class="flex items-center space-x-2 w-full md:w-auto">
-                                <i class="fas fa-calendar-alt text-teal-500 text-xl"></i>
-                                <div>
-                                    <label for_="checkin" class="block text-gray-600 text-sm">"Ngày nhận phòng"</label> // Giữ text-gray-600 nếu muốn màu xám cụ thể này
-                                    <Calendar date_setter={set_checkin} id={String::from("checkin")} />
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 w-full md:w-auto">
-                                <i class="fas fa-calendar-alt text-teal-500 text-xl"></i>
-                                <div>
-                                    <label for_="checkout" class="block text-gray-600 text-sm">"Ngày trả phòng"</label> // Giữ text-gray-600
-                                    <Calendar date_setter={set_checkout} id={String::from("checkout")}/>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 w-full md:w-auto">
-                                <i class="fas fa-bed text-primary text-xl"></i>
-                                <div>
-                                    <label for_="room-type" class="block text-gray-600 text-sm">"Loại phòng"</label> // Giữ text-gray-600
-                                    <select id="room-type" class="select select-bordered w-full text-base-content bg-transparent border-none p-0 h-auto min-h-0">
-                                        <option selected>"Standard"</option>
-                                        <option>"Deluxe"</option>
-                                        <option>"Suite"</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 w-full md:w-auto">
-                                <i class="fas fa-user-friends text-primary text-xl"></i>
-                                <div>
-                                    <label for_="guests" class="block text-gray-600 text-sm">"Số người"</label>
-                                    <input type="number" min=1 step=1 id="guests" class="w-full text-base-content bg-transparent border-none p-0 h-auto min-h-0" />
-                                </div>
-                            </div>
-                            <button class="btn btn-primary text-primary-content w-full md:w-auto text-lg px-8 py-3 rounded-full font-semibold md:ml-4"> // btn-primary tự động dùng bg-primary và hover
-                                "Tìm kiếm"
-                            </button>
-                        </div>
+                        <SearchBar handle_search_rooms={handle_find_rooms} set_date_range={set_date_range} set_room_type={set_room_type} set_guest_count={set_guest_count} />
                     </div>
                 </section>
 

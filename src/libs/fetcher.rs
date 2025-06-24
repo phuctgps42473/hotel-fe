@@ -1,7 +1,7 @@
 use eyre::Context;
 use js_sys::JSON;
 use leptos::prelude::window;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{Request, RequestInit, RequestMode, Response};
@@ -12,41 +12,6 @@ use crate::{config::env::BASE_URL, ApiResponse};
 struct TokenResponse {
     #[serde(rename = "accessToken")]
     access_token: String,
-}
-
-pub async fn fetch<T>(
-    enpoint: &str,
-    method: &str,
-    body: &JsValue,
-) -> Result<ApiResponse<T>, JsValue>
-where
-    T: for<'a> Deserialize<'a>,
-{
-    let default_options = RequestInit::new();
-    default_options.set_credentials(web_sys::RequestCredentials::Include);
-    default_options.set_mode(RequestMode::Cors);
-    default_options.set_method(method);
-    default_options.set_body(body);
-
-    let request =
-        Request::new_with_str_and_init(&format!("{}/{}", BASE_URL, enpoint), &default_options)?;
-    request.headers().set("Content-Type", "application/json")?;
-    if let Some(access_token) = window().local_storage()?.unwrap().get("accessToken")? {
-        request
-            .headers()
-            .set("Authorization", &format!("Bearer {}", access_token))?;
-    }
-
-    let promise = window().fetch_with_request(&request);
-    let response: Response = JsFuture::from(promise).await?.dyn_into()?;
-    let json = JsFuture::from(response.json()?).await?;
-    let stringified = JSON::stringify(&json)?;
-    let rust_json = stringified.as_string().unwrap();
-    let response: ApiResponse<T> = serde_json::from_str(&rust_json)
-        .context("Cannot deserialize response's json")
-        .unwrap();
-
-    Ok(response)
 }
 
 async fn refresh_token() {
@@ -72,4 +37,43 @@ async fn refresh_token() {
     // }
     // window().local_storage()?.unwrap().set("accessToken", res);
     todo!();
+}
+
+pub async fn fetch<Req, Res>(
+    enpoint: &str,
+    method: &str,
+    body: Option<Req>,
+) -> Result<ApiResponse<Res>, JsValue>
+where
+    Req: Serialize,
+    Res: for<'a> Deserialize<'a>,
+{
+    let default_options = RequestInit::new();
+    default_options.set_credentials(web_sys::RequestCredentials::Include);
+    default_options.set_mode(RequestMode::Cors);
+    default_options.set_method(method);
+    if let Some(req_body) = body {
+        let body = &JsValue::from_str(&serde_json::to_string(&req_body).unwrap());
+        default_options.set_body(body);
+    }
+
+    let request =
+        Request::new_with_str_and_init(&format!("{}/{}", BASE_URL, enpoint), &default_options)?;
+    request.headers().set("Content-Type", "application/json")?;
+    if let Some(access_token) = window().local_storage()?.unwrap().get("accessToken")? {
+        request
+            .headers()
+            .set("Authorization", &format!("Bearer {}", access_token))?;
+    }
+
+    let promise = window().fetch_with_request(&request);
+    let response: Response = JsFuture::from(promise).await?.dyn_into()?;
+    let json = JsFuture::from(response.json()?).await?;
+    let stringified = JSON::stringify(&json)?;
+    let rust_json = stringified.as_string().unwrap();
+    let response: ApiResponse<Res> = serde_json::from_str(&rust_json)
+        .context("Cannot deserialize response's json")
+        .unwrap();
+
+    Ok(response)
 }

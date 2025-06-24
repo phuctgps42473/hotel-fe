@@ -8,9 +8,8 @@ use wasm_bindgen::JsCast;
 use web_sys::{Event, HtmlInputElement, SubmitEvent};
 
 use crate::{
-    config::reqwest::fetcher,
     layouts::public::{footer::Footer, header::Header},
-    ApiResponse,
+    libs::fetcher::fetch,
 };
 
 #[derive(Serialize)]
@@ -186,41 +185,37 @@ pub fn Register() -> impl IntoView {
 
         let toaster = toaster.clone();
         spawn_local(async move {
-            match fetcher()
-                .post("http://localhost:8080/api/register")
-                .json(&RegisterForm {
+            match fetch::<RegisterForm, RegisterResponse>(
+                "register",
+                "POST",
+                Some(RegisterForm {
                     fullname,
                     email,
                     phone_number,
                     password,
-                })
-                .send()
-                .await
+                }),
+            )
+            .await
             {
-                Ok(res) => {
-                    let body = res.json::<ApiResponse<RegisterResponse>>().await.unwrap();
-                    match body.code {
-                        201 => {
-                            toaster.success("Successfully registered.Redirecting to login page");
-                            set_timeout(
-                                move || {
-                                    navigate("/login", Default::default());
-                                },
-                                Duration::from_millis(3000),
-                            );
-                        }
-                        400 => toaster.error(body.error.unwrap().message),
-                        500 => toaster.error("Something wrong with the system"),
-                        _ => leptos::logging::log!("Unexpected Response Status"),
+                Ok(res) => match res.code {
+                    201 => {
+                        toaster.success("Successfully registered.Redirecting to login page");
+                        set_timeout(
+                            move || {
+                                navigate("/login", Default::default());
+                            },
+                            Duration::from_millis(3000),
+                        );
                     }
-                }
+                    400 => toaster.error(res.error.unwrap().message),
+                    500 => toaster.error("Something wrong with the system"),
+                    _ => leptos::logging::log!("Unexpected Response Status"),
+                },
                 Err(error) => {
                     leptos::logging::log!("{:?}", error)
                 }
             }
         });
-
-        // leptos::logging::log!("{}-{}-{}-{}", fullname, email, password, phone_number);
     };
 
     view! {
