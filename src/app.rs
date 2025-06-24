@@ -1,5 +1,8 @@
 use crate::{
-    pages::{contact::Contact, landing_page::LandingPage, login::Login, register::Register, search_result::SearchResult},
+    pages::{
+        contact::Contact, landing_page::LandingPage, login::Login, not_found::NotFound,
+        register::Register, room_details::RoomDetails, search_result::SearchResult,
+    },
     Home,
 };
 
@@ -7,8 +10,8 @@ use leptoaster::*;
 use leptos::prelude::*;
 use leptos_meta::*;
 use leptos_router::{
-    components::{Route, Router, Routes},
-    StaticSegment,
+    components::{ParentRoute, Route, Router, Routes},
+    path, StaticSegment,
 };
 
 #[component]
@@ -22,13 +25,14 @@ pub fn App() -> impl IntoView {
     <Link rel="shortcut icon" type_="image/ico" href="/favicon.ico"/>
     <Toaster stacked={true} />
     <Router>
-        <Routes fallback=|| "Page not found.">
+        <Routes fallback=NotFound>
             <Route path=StaticSegment("") view=LandingPage/>
             <Route path=StaticSegment("home") view=Home/>
             <Route path=StaticSegment("contact") view=Contact/>
             <Route path=StaticSegment("register") view=Register/>
             <Route path=StaticSegment("login") view=Login/>
             <Route path=StaticSegment("search") view=SearchResult/>
+            <Route path=path!("rooms/:id") view=RoomDetails/>
         </Routes>
     </Router>
      }

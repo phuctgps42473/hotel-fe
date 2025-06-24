@@ -4,7 +4,7 @@ use js_sys::{RegExp, JSON};
 use leptoaster::expect_toaster;
 use leptos::{prelude::*, reactive::spawn_local};
 use serde::{Deserialize, Serialize};
-use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
+use wasm_bindgen::{prelude::Closure, JsCast};
 use web_sys::{Event, HtmlInputElement, MessageEvent, SubmitEvent};
 
 use crate::{
@@ -119,10 +119,10 @@ pub fn Login() -> impl IntoView {
         let navigate_clone = navigate_clone.clone();
         let toaster_clone = toaster_clone.clone();
         spawn_local(async move {
-            match fetch::<LoginResponse>(
+            match fetch::<LoginForm, LoginResponse>(
                 "login",
                 "POST",
-                &JsValue::from_str(&serde_json::to_string(&LoginForm { email, password }).unwrap()),
+                Some(LoginForm { email, password }),
             )
             .await
             {
