@@ -1,14 +1,42 @@
-use leptos::prelude::*;
+use leptos::{prelude::*, task::spawn_local};
+use leptos_router::{hooks::use_query, params::Params};
+
+use crate::{
+    layouts::public::{footer::Footer, header::Header},
+    libs::fetcher::fetch,
+};
+
+#[derive(Params, PartialEq, Debug)]
+struct VNPayQuery {
+    vnp_Amount: Option<u64>,
+    vnp_BankCode: Option<String>,
+    vnp_BankTranNo: Option<String>,
+    vnp_CardType: Option<String>,
+    vnp_OrderInfo: Option<String>,
+    vnp_PayDate: Option<String>,
+    vnp_ResponseCode: Option<String>,
+    vnp_TmnCode: Option<String>,
+    vnp_TransactionNo: Option<String>,
+    vnp_TransactionStatus: Option<String>,
+    vnp_TxnRef: Option<String>,
+    vnp_SecureHash: Option<String>,
+}
 
 #[component]
-pub fn App() -> impl IntoView {
-    view! {
-        <div class="font-sans min-h-screen flex flex-col items-center bg-white text-gray-800">
-            // Logo (Top center)
-            <div class="w-full py-8 md:py-12 text-center">
-                <a class="text-3xl md:text-4xl font-bold text-gray-800" href="#">"ELARIS HOTEL"</a>
-            </div>
+pub fn PaymentCallBack() -> impl IntoView {
+    let query = use_query::<VNPayQuery>();
 
+    Effect::new(move || {
+        leptos::logging::log!("{:#?}", query.read().as_ref().unwrap());
+        let id = query.read().as_ref().unwrap().vnp_TxnRef.as_ref().unwrap().to_string();
+        spawn_local(async move {
+            let _ = fetch::<(), ()>(&format!("payment/return/{}", id), "GET", None).await;
+        });
+    });
+
+    view! {
+      <Header />
+        <div class="font-sans min-h-screen flex flex-col items-center bg-white text-gray-800">
             // Main Content Area
             <main class="flex-grow flex flex-col items-center justify-center p-4 text-center max-w-2xl mx-auto">
                 // Checkmark icons
@@ -25,13 +53,13 @@ pub fn App() -> impl IntoView {
                 </div>
 
                 // Success Message
-                <h1 class="text-3xl md:text-4xl font-bold text-teal-custom uppercase mb-8">
+                <h1 class="text-3xl md:text-4xl font-bold text-teal-custom uppercase">
                     "BẠN ĐÃ THANH TOÁN THÀNH CÔNG"
                 </h1>
 
                 // Illustration (Placeholder for the actual image)
                 // You would replace this SVG with your actual image asset
-                <div class="w-full max-w-sm mb-8">
+                <div class="w-full max-w-sm">
                     <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect x="0" y="0" width="400" height="300" fill="#FFFFFF"/>
                         <circle cx="200" cy="150" r="100" fill="#F5F5F5"/> // Outer circle
@@ -68,5 +96,6 @@ pub fn App() -> impl IntoView {
                 </a>
             </main>
         </div>
+        <Footer />
     }
 }

@@ -1,9 +1,23 @@
 use leptos::prelude::*;
+use leptos::Params;
+use leptos_router::hooks::use_params;
+use leptos_router::{hooks::use_navigate, params::Params, NavigateOptions};
 
 use crate::layouts::public::{footer::Footer, header::Header};
 
+#[derive(Params, PartialEq)]
+pub struct RoomParam {
+    id: Option<u64>,
+}
+
 #[component]
 pub fn RoomDetails() -> impl IntoView {
+    let params = use_params::<RoomParam>();
+    let id = params.read().as_ref().unwrap().id;
+    if id.is_none() {
+        use_navigate()("/notfound", NavigateOptions::default());
+    }
+
     view! {
       <Header />
             <div class="container mx-auto bg-base-100 p-6 md:p-8 lg:p-10 rounded-[var(--radius-selector)] shadow-lg max-w-7xl">
@@ -189,9 +203,9 @@ pub fn RoomDetails() -> impl IntoView {
                             <li>Trả phòng: trước 12:00</li>
                         </ul>
 
-                        <button class="btn btn-primary w-full text-primary-content rounded-[var(--radius-box)] text-lg py-3 mb-4">
+                        <a href={format!("/booking/{}", id.unwrap())} class="btn btn-primary w-full text-primary-content rounded-[var(--radius-box)] text-lg py-3 mb-4">
                             ĐẶT NGAY
-                        </button>
+                        </a>
                         <a href="#" class="flex items-center justify-center gap-2 text-primary hover:underline">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
                             Liên hệ với khách sạn
