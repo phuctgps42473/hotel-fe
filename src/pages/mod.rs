@@ -8,5 +8,6 @@ pub mod room_details;
 pub mod booking;
 pub mod payment;
 pub mod not_found;
+pub mod about_us;
 
 pub use home::Home;

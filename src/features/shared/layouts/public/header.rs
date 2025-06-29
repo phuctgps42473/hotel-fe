@@ -17,7 +17,7 @@ pub fn Header() -> impl IntoView {
                             <li><a class="font-semibold text-base-content hover:text-primary" href="/">"Trang chủ"</a></li>
                             <li><a class="font-semibold text-base-content hover:text-primary" href="#">"Loại phòng"</a></li>
                             <li><a class="font-semibold text-base-content hover:text-primary" href="#">"Khám phá"</a></li>
-                            <li><a class="font-semibold text-base-content hover:text-primary" href="#">"Thông tin"</a></li>
+                            <li><a class="font-semibold text-base-content hover:text-primary" href="/about-us">"Thông tin"</a></li>
                             <li><a class="font-semibold text-base-content hover:text-primary" href="#">"Liên hệ"</a></li>
                         </ul>
                     </div>
@@ -67,10 +67,10 @@ pub fn Header() -> impl IntoView {
                             on:click=move |_| set_is_drawer_open.set(false)
                         ></label>
                         <ul class="menu p-4 w-80 bg-base-100 h-full">
-                            <li><a class="font-semibold text-base-content hover:text-primary" href="#" on:click=move |_| set_is_drawer_open.set(false)>"Trang chủ"</a></li>
+                            <li><a class="font-semibold text-base-content hover:text-primary" href="/" on:click=move |_| set_is_drawer_open.set(false)>"Trang chủ"</a></li>
                             <li><a class="font-semibold text-base-content hover:text-primary" href="#" on:click=move |_| set_is_drawer_open.set(false)>"Loại phòng"</a></li>
                             <li><a class="font-semibold text-base-content hover:text-primary" href="#" on:click=move |_| set_is_drawer_open.set(false)>"Khám phá"</a></li>
-                            <li><a class="font-semibold text-base-content hover:text-primary" href="#" on:click=move |_| set_is_drawer_open.set(false)>"Thông tin"</a></li>
+                            <li><a class="font-semibold text-base-content hover:text-primary" href="/about-us" on:click=move |_| set_is_drawer_open.set(false)>"Thông tin"</a></li>
                             <li><a class="font-semibold text-base-content hover:text-primary" href="#" on:click=move |_| set_is_drawer_open.set(false)>"Liên hệ"</a></li>
                             <li class="mt-4"><a class="btn btn-ghost text-primary hover:text-primary-focus font-semibold" href="#" on:click=move |_| set_is_drawer_open.set(false)>"Đăng nhập"</a></li>
                             <li><a class="btn btn-primary text-primary-content font-semibold mt-2" href="#" on:click=move |_| set_is_drawer_open.set(false)>"Đăng ký"</a></li>
