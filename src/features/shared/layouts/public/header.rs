@@ -1,7 +1,11 @@
 use leptos::prelude::*;
+use reactive_stores::Store;
+
+use crate::app::GlobalState;
 
 #[component]
 pub fn Header() -> impl IntoView {
+    let state = expect_context::<Store<GlobalState>>();
     let (is_drawer_open, set_is_drawer_open) = signal(false);
     view! {
                 <header class="navbar bg-base-100 shadow-sm px-4 md:px-8 lg:px-16 py-4">
@@ -17,10 +21,23 @@ pub fn Header() -> impl IntoView {
                             <li><a class="font-semibold text-base-content hover:text-primary" href="#">"Liên hệ"</a></li>
                         </ul>
                     </div>
-                    <div class="flex-none hidden lg:flex ml-4">
-                        <a class="btn btn-ghost text-primary hover:text-primary-focus font-semibold" href="/login">"Đăng nhập"</a>
-                        <a class="btn btn-primary text-primary-content font-semibold" href="/register">"Đăng ký"</a>
-                    </div>
+
+                    <Show
+                      when={move || state.read().user.is_some()}
+                      fallback={|| view! {
+                        <div class="flex-none hidden lg:flex ml-4">
+                            <a class="btn btn-ghost text-primary hover:text-primary-focus font-semibold" href="/login">"Đăng nhập"</a>
+                            <a class="btn btn-primary text-primary-content font-semibold" href="/register">"Đăng ký"</a>
+                        </div>
+                      }}
+                    >
+                      <div class="flex-none hidden lg:flex ml-4">
+                          <UserProfile />
+                      </div>
+                    </Show>
+
+
+
                     <div class="flex-none lg:hidden">
                         <label
                             // for_="my-drawer-3"
@@ -60,5 +77,47 @@ pub fn Header() -> impl IntoView {
                         </ul>
                     </div>
                 </div>
+    }
+}
+
+#[component]
+fn UserProfile() -> impl IntoView {
+    view! {
+        <div class="dropdown dropdown-end">
+            // Avatar kích hoạt dropdown
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar transition-transform duration-300 hover:scale-110">
+                <div class="w-10 rounded-full ring-2 ring-primary ring-offset-base-100 ring-offset-2">
+                    <img alt="User Avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=2944&auto=format&fit=crop" />
+                </div>
+            </div>
+
+            // Nội dung dropdown, sử dụng đúng màu từ palette
+            <ul tabindex="0" class="menu dropdown-content mt-4 z-[1] p-2 shadow-xl bg-base-100 border border-base-300 rounded-box w-60">
+                // Header của menu
+                <div class="px-4 py-2">
+                    <div class="font-bold text-lg text-base-content">"Phan Văn Phú"</div>
+                    <div class="text-sm text-base-content/70 -mt-1">"vanphuuuuuu@gmail.com"</div>
+                </div>
+                <div class="divider my-1"></div>
+
+                // Các link hành động
+                <li>
+                    <a href="/profile" class="text-base-content hover:bg-primary/10 hover:text-primary rounded-lg">
+                        <i class="fas fa-user w-4 mr-2"></i>"Tài khoản của tôi"
+                    </a>
+                </li>
+                <li>
+                    <a href="/bookings" class="text-base-content hover:bg-primary/10 hover:text-primary rounded-lg">
+                        <i class="fas fa-history w-4 mr-2"></i>"Lịch sử đặt phòng"
+                    </a>
+                </li>
+                <div class="divider my-1"></div>
+                <li>
+                    <a href="/logout" class="text-error hover:bg-error/10 hover:font-semibold rounded-lg">
+                        <i class="fas fa-sign-out-alt w-4 mr-2"></i>"Đăng xuất"
+                    </a>
+                </li>
+            </ul>
+        </div>
     }
 }

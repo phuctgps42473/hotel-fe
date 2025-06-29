@@ -14,19 +14,20 @@ use leptos_router::{
     path, StaticSegment,
 };
 use reactive_stores::Store;
+use serde::Deserialize;
 
 
-#[derive(Clone, Debug, Default, Store)]
+#[derive(Clone, Debug, Default, Store, Deserialize)]
 pub struct UserState {
-    email: Option<String>,
-    fullname: Option<String>,
-    id: Option<u32>,
-    role: Option<String>,
+    pub email: String,
+    pub fullname: String,
+    pub id: u32,
+    pub role: String,
 }
 
 #[derive(Clone, Debug, Default, Store)]
-struct GlobalState {
-    user: UserState,
+pub struct GlobalState {
+    pub user: Option<UserState>,
 }
 
 #[component]
