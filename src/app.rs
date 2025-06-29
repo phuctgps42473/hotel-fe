@@ -10,14 +10,31 @@ use leptoaster::*;
 use leptos::prelude::*;
 use leptos_meta::*;
 use leptos_router::{
-    components::{ParentRoute, Route, Router, Routes},
+    components::{Route, Router, Routes},
     path, StaticSegment,
 };
+use reactive_stores::Store;
+use serde::Deserialize;
+
+
+#[derive(Clone, Debug, Default, Store, Deserialize)]
+pub struct UserState {
+    pub email: String,
+    pub fullname: String,
+    pub id: u32,
+    pub role: String,
+}
+
+#[derive(Clone, Debug, Default, Store)]
+pub struct GlobalState {
+    pub user: Option<UserState>,
+}
 
 #[component]
 pub fn App() -> impl IntoView {
     provide_toaster();
     provide_meta_context();
+    provide_context(Store::new(GlobalState::default()));
 
     view! {
     // <Stylesheet id="leptos" href="/style/output.css"/>
