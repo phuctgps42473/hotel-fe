@@ -3,13 +3,13 @@ use std::time::Duration;
 use js_sys::{RegExp, JSON};
 use leptoaster::expect_toaster;
 use leptos::{prelude::*, reactive::spawn_local};
+use reactive_stores::Store;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::{prelude::Closure, JsCast};
 use web_sys::{Event, HtmlInputElement, MessageEvent, SubmitEvent};
 
 use crate::{
-    layouts::public::{footer::Footer, header::Header},
-    libs::fetcher::fetch,
+    app::{GlobalState, UserState}, layouts::public::{footer::Footer, header::Header}, libs::fetcher::fetch
 };
 
 #[derive(Serialize)]
@@ -18,27 +18,18 @@ struct LoginForm {
     password: String,
 }
 
-#[allow(unused)]
-#[derive(Deserialize, Debug)]
-struct User {
-    email: String,
-    fullname: String,
-    id: u32,
-    role: String,
-}
-
-#[allow(unused)]
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 struct LoginResponse {
     #[serde(rename = "accessToken")]
     access_token: Option<String>,
     #[serde(rename = "userInfo")]
-    user_info: Option<User>,
-    message: Option<String>,
+    user_info: Option<UserState>,
 }
 
 #[component]
 pub fn Login() -> impl IntoView {
+    let state = expect_context::<Store<GlobalState>>();
+
     let navigate = leptos_router::hooks::use_navigate();
     let toaster = expect_toaster();
     let (disable_button, set_disable_button) = signal(true);
@@ -129,7 +120,9 @@ pub fn Login() -> impl IntoView {
                 Ok(body) => match body.code {
                     200 => {
                         toaster_clone.success("Successfully Logged In.Redirecting to HomePage");
-                        set_local_storage("accessToken", &body.data.unwrap().access_token.unwrap());
+                        let data = body.data.unwrap();
+                        set_local_storage("accessToken", data.access_token.as_ref().unwrap());
+                        state.write().user = data.user_info;
                         set_timeout(
                             move || {
                                 navigate_clone("/home", Default::default());
@@ -137,7 +130,7 @@ pub fn Login() -> impl IntoView {
                             Duration::from_millis(1000),
                         );
                     }
-                    401 => toaster_clone.error(body.error.unwrap().message.unwrap()),
+                    401 => toaster_clone.error(body.error.unwrap().message),
                     500 => toaster_clone.error("Something wrong with the system"),
                     _ => leptos::logging::log!("Unexpected Response Status"),
                 },
