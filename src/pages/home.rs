@@ -28,7 +28,7 @@ fn RoomCard(room: Room) -> impl IntoView {
             <div class="card-body p-4">
                 <h2 class="card-title text-xl font-bold text-gray-800">{room.name}</h2>
                 <div class="flex items-center text-sm text-gray-500 my-1">
-                    <a href="/rooms/1" class="hover:text-teal-custom">"Xem chi tiết phòng"</a>
+                        <a href={format!("/rooms/{}", room.id)} class="hover:text-teal-custom">"Xem chi tiết phòng"</a>
                     <span class="mx-1">"•"</span>
                     <div class="flex items-center">
                         <i class="fas fa-star text-yellow-400"></i>
@@ -41,7 +41,7 @@ fn RoomCard(room: Room) -> impl IntoView {
                 </div>
                 <p class="text-2xl font-bold text-teal-custom my-2">{format_currency(room.price_per_night)}</p>
                 <div class="card-actions justify-end">
-                    <button class="btn btn-primary bg-teal-custom hover:bg-teal-light text-white border-none rounded-lg px-6">"Xem Ngay"</button>
+                    <a href={format!("/rooms/{}", room.id)} class="btn btn-primary bg-teal-custom hover:bg-teal-light text-white border-none rounded-lg px-6">"Xem Ngay"</a>
                 </div>
             </div>
         </div>
