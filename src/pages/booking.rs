@@ -1,17 +1,16 @@
 use leptos::{prelude::*, task::spawn_local};
-use leptos_router::{hooks::use_params, params::Params};
+use leptos_router::{hooks::{use_navigate, use_params}, params::Params, NavigateOptions};
+use reactive_stores::Store;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    features::shared::components::date_range_picker::{DateRangePicker, ExcludeRange},
-    layouts::public::{footer::Footer, header::Header},
-    libs::{
+    app::{GlobalState, GlobalStateStoreFields}, features::shared::components::date_range_picker::{DateRangePicker, ExcludeRange}, layouts::public::{footer::Footer, header::Header}, libs::{
         fetcher::fetch,
         utils::{
             currency_utils::format_currency,
             date_utils::{calculate_days_between_range, get_check_in_out},
         },
-    },
+    }
 };
 
 #[derive(Clone, Debug, Deserialize)]
@@ -92,6 +91,16 @@ struct PaymentResponse {
 
 #[component]
 pub fn Booking() -> impl IntoView {
+    let state = expect_context::<Store<GlobalState>>();
+    let user = state.user();
+
+    Effect::new(move || {
+      if user.read().is_none() {
+        use_navigate()("/login", NavigateOptions::default());
+      }
+    });
+
+
     let params = use_params::<RoomParam>();
     let id = params.read().as_ref().unwrap().id.unwrap();
 
@@ -150,7 +159,7 @@ pub fn Booking() -> impl IntoView {
                 "POST",
                 Some(BookingRequest {
                     room_id: id,
-                    customer_email: String::from("john@example.com"),
+                    customer_email: user.read().as_ref().unwrap().email.to_string(),
                     number_of_guest: 1,
                     checkin_date,
                     checkout_date,

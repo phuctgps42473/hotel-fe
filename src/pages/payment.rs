@@ -1,12 +1,13 @@
 use leptos::{prelude::*, task::spawn_local};
 use leptos_router::{hooks::use_query, params::Params};
+use serde::Serialize;
 
 use crate::{
     layouts::public::{footer::Footer, header::Header},
     libs::fetcher::fetch,
 };
 
-#[derive(Params, PartialEq, Debug)]
+#[derive(Params, PartialEq, Debug, Clone)]
 struct VNPayQuery {
     vnp_Amount: Option<u64>,
     vnp_BankCode: Option<String>,
@@ -18,8 +19,27 @@ struct VNPayQuery {
     vnp_TmnCode: Option<String>,
     vnp_TransactionNo: Option<String>,
     vnp_TransactionStatus: Option<String>,
-    vnp_TxnRef: Option<String>,
+    vnp_TxnRef: Option<u64>,
     vnp_SecureHash: Option<String>,
+}
+
+#[derive(Serialize, Debug)]
+struct PaymentCallBackRequest {
+  #[serde(rename = "bookingId")]
+  booking_id: u64,
+  #[serde(rename = "transactionNo")]
+  transaction_no: String,
+  amount: u64
+}
+
+impl From<VNPayQuery> for PaymentCallBackRequest {
+  fn from(value: VNPayQuery) -> Self {
+      Self {
+        booking_id: value.vnp_TxnRef.unwrap(),
+        transaction_no: value.vnp_TransactionNo.as_ref().unwrap().to_string(),
+        amount: value.vnp_Amount.unwrap()
+      }
+  }
 }
 
 #[component]
@@ -27,10 +47,9 @@ pub fn PaymentCallBack() -> impl IntoView {
     let query = use_query::<VNPayQuery>();
 
     Effect::new(move || {
-        leptos::logging::log!("{:#?}", query.read().as_ref().unwrap());
-        let id = query.read().as_ref().unwrap().vnp_TxnRef.as_ref().unwrap().to_string();
+        let req_body: PaymentCallBackRequest = PaymentCallBackRequest::from(query.read().as_ref().unwrap().clone());
         spawn_local(async move {
-            let _ = fetch::<(), ()>(&format!("payment/return/{}", id), "GET", None).await;
+            let _ = fetch::<PaymentCallBackRequest, ()>("payment/return", "POST", Some(req_body)).await;
         });
     });
 
