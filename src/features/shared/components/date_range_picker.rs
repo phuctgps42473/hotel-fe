@@ -3,8 +3,19 @@ use leptos::prelude::*;
 use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
 use web_sys::HtmlInputElement;
 
+#[derive(serde::Serialize)]
+pub struct ExcludeRange {
+    pub from: String,
+    pub to: String,
+}
+
 #[component]
-pub fn DateRangePicker(id: String, date_range_setter: WriteSignal<String>) -> impl IntoView {
+pub fn DateRangePicker(
+    id: String,
+    date_range_setter: WriteSignal<String>,
+    custom_style: String,
+    exclude_ranges: Vec<ExcludeRange>
+) -> impl IntoView {
     let id_cloned = id.clone();
 
     Effect::new(move |_| {
@@ -31,6 +42,7 @@ pub fn DateRangePicker(id: String, date_range_setter: WriteSignal<String>) -> im
 
         let init_pikaday = Function::new_with_args(
             "elm",
+            &format!("{}{}{}",
             r#"
             setTimeout(() => {
                 if (typeof flatpickr === 'undefined') {
@@ -41,20 +53,11 @@ pub fn DateRangePicker(id: String, date_range_setter: WriteSignal<String>) -> im
                   mode: "range",
                   minDate: "today",
                   dateFormat: "Y-m-d",
-                  disable: [
-                    {
-                        from: "2025-06-11",
-                        to: "2025-06-21"
-                    },
-                    {
-                        from: "2025-07-01",
-                        to: "2025-12-01"
-                    }
-                  ]
-                });
+                  disable:"#, serde_json::to_string(&exclude_ranges).unwrap(),
+                r#"});
             }, 500);
         "#,
-        );
+        ));
 
         if let Err(err) = init_pikaday.call1(&JsValue::NULL, &input_el.into()) {
             leptos::logging::error!("Lỗi khi khởi tạo Date Picker: {:?}", err);
@@ -62,6 +65,6 @@ pub fn DateRangePicker(id: String, date_range_setter: WriteSignal<String>) -> im
     });
 
     view! {
-      <input class="p-0" type="date" id={id_cloned} />
+      <input class={format!("p-0 text-xl font-semibold {}", custom_style)} type="date" id={id_cloned} />
     }
 }

@@ -55,7 +55,7 @@ pub fn SearchBar(
               <label for_="checkin" class="block text-gray-600 text-sm">"Ngày nhận phòng"</label>
               <div class="flex items-center justify-center gap-2" >
                   <i class="fas fa-calendar-alt text-primary text-xl"></i>
-                  <DateRangePicker date_range_setter={set_date_range} id={String::from("checkin")} />
+                  <DateRangePicker exclude_ranges={Vec::new()} custom_style={String::new()} date_range_setter={set_date_range} id={String::from("checkin")} />
               </div>
           </div>
           <div class="flex items-center space-x-2 w-full md:w-auto">
