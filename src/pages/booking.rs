@@ -26,9 +26,9 @@ pub struct Service {
 #[derive(Clone, Debug, Deserialize)]
 pub struct BookedDate {
     #[serde(rename = "checkInDate")]
-    from: Option<String>,
+    pub from: Option<String>,
     #[serde(rename = "checkOutDate")]
-    to: Option<String>,
+    pub to: Option<String>,
 }
 
 impl Into<ExcludeRange> for BookedDate {

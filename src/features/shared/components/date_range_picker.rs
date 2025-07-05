@@ -1,9 +1,10 @@
 use js_sys::Function;
 use leptos::prelude::*;
+use serde::Serialize;
 use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
 use web_sys::HtmlInputElement;
 
-#[derive(serde::Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct ExcludeRange {
     pub from: String,
     pub to: String,
