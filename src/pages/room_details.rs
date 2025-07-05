@@ -1,22 +1,106 @@
 use leptos::prelude::*;
+use leptos::task::spawn_local;
 use leptos::Params;
 use leptos_router::hooks::use_params;
 use leptos_router::{hooks::use_navigate, params::Params, NavigateOptions};
+use serde::Deserialize;
 
+use crate::features::shared::components::date_range_picker::{DateRangePicker, ExcludeRange};
+use crate::features::shared::components::spinner::Spinner;
 use crate::layouts::public::{footer::Footer, header::Header};
+use crate::libs::fetcher::{fetch, fetch2};
+use crate::pages::booking::BookedDate;
 
 #[derive(Params, PartialEq)]
 pub struct RoomParam {
     id: Option<u64>,
 }
 
+#[derive(Default, Debug, Deserialize, Clone)]
+pub struct Room {
+    #[serde(rename = "id")]
+    pub id: Option<i32>,
+    #[serde(rename = "roomNumber")]
+    pub room_number: Option<String>,
+    #[serde(rename = "roomTypeID")]
+    pub room_type_id: Option<RoomType>,
+    #[serde(rename = "pricePerNight")]
+    pub price_per_night: Option<f64>,
+    #[serde(rename = "description")]
+    pub description: Option<String>,
+    #[serde(rename = "capacity")]
+    pub capacity: Option<i32>,
+    #[serde(rename = "status")]
+    pub status: Option<String>,
+    #[serde(rename = "amenities")]
+    pub amenities: Option<String>,
+}
+
+#[derive(Default, Debug, Deserialize, Clone)]
+pub struct RoomType {
+    #[serde(rename = "id")]
+    pub id: Option<i32>,
+    #[serde(rename = "typeName")]
+    pub type_name: Option<String>,
+    #[serde(rename = "defaultPrice")]
+    pub default_price: Option<f64>,
+    #[serde(rename = "description")]
+    pub description: Option<String>,
+}
+
 #[component]
 pub fn RoomDetails() -> impl IntoView {
     let params = use_params::<RoomParam>();
     let id = params.read().as_ref().unwrap().id;
+    let (room_details, set_room_details) = signal(Room::default());
     if id.is_none() {
         use_navigate()("/notfound", NavigateOptions::default());
     }
+
+    let (_, set_pick_date_range) = signal(String::new());
+
+    let (exclude_date_ranges, set_exclude_date_ranges) = signal(None);
+
+    Effect::new(move || {
+        let room_id = id.as_ref().unwrap().clone();
+        spawn_local(async move {
+            match fetch2::<(), Room>(&format!("rooms/{}", room_id), "GET", None).await {
+                Err(e) => leptos::logging::log!("{:?}", e),
+                Ok(rdetails) => {
+                    set_room_details.set(rdetails);
+                }
+            }
+        });
+    });
+
+    Effect::new(move || {
+        let room_id = id.as_ref().unwrap().clone();
+        spawn_local(async move {
+            match fetch::<(), Vec<BookedDate>>(&format!("bookings/dates/{}", room_id), "GET", None)
+                .await
+            {
+                Err(e) => leptos::logging::log!("{:?}", e),
+                Ok(res) => {
+                    if res.code == 200 {
+                        let exclude_ranges = res
+                            .data
+                            .unwrap()
+                            .into_iter()
+                            .map(
+                                |booked_date| booked_date.into(), // ExcludeRange {
+                                                                  //     from: date_utils::timestamp_to_html_date(booked_date.from.unwrap()),
+                                                                  //     to: date_utils::timestamp_to_html_date(booked_date.to.unwrap()),
+                                                                  // }
+                            )
+                            .collect::<Vec<ExcludeRange>>();
+                        set_exclude_date_ranges.set(Some(exclude_ranges));
+                    } else {
+                        set_exclude_date_ranges.set(Some(vec![]));
+                    }
+                }
+            }
+        });
+    });
 
     view! {
       <Header />
@@ -77,131 +161,44 @@ pub fn RoomDetails() -> impl IntoView {
                         <div class="mb-10">
                             <h2 class="text-2xl font-semibold text-base-content mb-4">MÔ TẢ CHI TIẾT</h2>
                             <p class="text-base-content text-opacity-80 leading-relaxed mb-4">
-                                Trải nghiệm một kỳ nghỉ thư giãn trong phòng Twin Guest Room sang trọng và tinh tế.
-                                Phòng được trang bị hai giường đơn cùng menu gối tùy chọn để đảm bảo giấc ngủ êm ái.
-                            </p>
-                            <p class="text-base-content text-opacity-80 leading-relaxed">
-                                Thư giãn khi xem các kênh phim cao cấp trên TV 55 inch hoặc nhâm nhi đồ uống mát lạnh từ minibar.
-                                Phòng tắm riêng có bồn tắm tách biệt, sản phẩm chăm sóc cơ thể cao cấp và hai bồn rửa mặt tiện lợi.
+                                {move || room_details.read().description.clone()}
                             </p>
                         </div>
-
-                        // Amenities
-                        <div class="mb-10">
-                            <h2 class="text-2xl font-semibold text-base-content mb-4">TIỆN ÍCH ĐI KÈM</h2>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6 text-base-content text-opacity-80">
-                                <div class="flex items-center gap-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-                                    <span>Phòng bếp</span>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h4c.057 0 .113.003.17.003h.363c.057 0 .113-.003.17-.003h4l-1-1-1-3L9.75 17z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                    <span>Tivi kèm Netflix</span>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5c-1.105 0-2-.895-2-2V9c0-1.105.895-2 2-2h5m-5 5h5m-5 0l-1-1" /></svg>
-                                    <span>Máy lạnh</span>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7" /></svg>
-                                    <span>Wifi miễn phí</span>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5a2 2 0 00-2 2v6a2 2 0 002 2h14a2 2 0 002-2v-6a2 2 0 00-2-2z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-2a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1z" /></svg>
-                                    <span>Giặt ủi</span>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6L6 2l-4 4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 10L18 6l-4 4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18l4 4 4-4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 14l-4 4-4-4" /></svg>
-                                    <span>Ban công hoặc sân hiên</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        // Reviews Section
-                        <div>
-                            <h2 class="text-2xl font-semibold text-base-content mb-4">ĐÁNH GIÁ</h2>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                // Review Card 1
-                                <div class="flex gap-4">
-                                    <div class="avatar">
-                                        <div class="w-12 h-12 rounded-full overflow-hidden">
-                                            <img src="https://i.pravatar.cc/150?img=1" alt="Avatar"/>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p class="font-semibold text-base-content">Lê Lê</p>
-                                        <p class="text-sm text-base-content text-opacity-70 mb-2">4 - 12 - 2020</p>
-                                        <p class="text-base-content text-opacity-80 text-sm">
-                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                        </p>
-                                    </div>
-                                </div>
-                                // Review Card 2
-                                <div class="flex gap-4">
-                                    <div class="avatar">
-                                        <div class="w-12 h-12 rounded-full overflow-hidden">
-                                            <img src="https://i.pravatar.cc/150?img=2" alt="Avatar"/>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p class="font-semibold text-base-content">Mèo Mèo</p>
-                                        <p class="text-sm text-base-content text-opacity-70 mb-2">6 - 12 - 2020</p>
-                                        <p class="text-base-content text-opacity-80 text-sm">
-                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                        </p>
-                                    </div>
-                                </div>
-                                // Review Card 3
-                                <div class="flex gap-4">
-                                    <div class="avatar">
-                                        <div class="w-12 h-12 rounded-full overflow-hidden">
-                                            <img src="https://i.pravatar.cc/150?img=3" alt="Avatar"/>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p class="font-semibold text-base-content">Anh Thư</p>
-                                        <p class="text-sm text-base-content text-opacity-70 mb-2">4 - 12 - 2020</p>
-                                        <p class="text-base-content text-opacity-80 text-sm">
-                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                        </p>
-                                    </div>
-                                </div>
-                                // Review Card 4
-                                <div class="flex gap-4">
-                                    <div class="avatar">
-                                        <div class="w-12 h-12 rounded-full overflow-hidden">
-                                            <img src="https://i.pravatar.cc/150?img=4" alt="Avatar"/>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p class="font-semibold text-base-content">Nhi Nhi</p>
-                                        <p class="text-sm text-base-content text-opacity-70 mb-2">4 - 12 - 2020</p>
-                                        <p class="text-base-content text-opacity-80 text-sm">
-                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <button class="btn btn-primary text-primary-content rounded-[var(--radius-box)] px-6 py-2">
-                                Xem thêm đánh giá
-                            </button>
-                        </div>
+                        <Show
+                          fallback={move || view!{<Spinner />}}
+                          when={move || room_details.read().amenities.is_some()}
+                        >
+                          <AmenityList amenities={room_details.get().amenities.unwrap().split(",").map(|a| a.to_string()).collect()} />
+                        </Show>
+                        <Show
+                          fallback={move || view!{<Spinner />}}
+                          when={move || room_details.read().amenities.is_some()}
+                        >
+                        <ReviewList />
+                        </Show>
                     </div>
 
                     // Right Column (Booking Panel)
                     <div class="lg:col-span-1 bg-base-100 p-6 rounded-[var(--radius-box)] shadow-md border border-base-200 sticky top-4">
                         <div class="text-3xl font-bold text-base-content mb-2">
-                            "4,290,000₫/đêm"
+                            {move || room_details.read().price_per_night}"₫/đêm"
                         </div>
                         <p class="text-sm text-base-content text-opacity-70 mb-6">(Đã bao gồm thuế & phí dịch vụ)</p>
 
-                        <ul class="space-y-3 text-base-content mb-8">
+                        <ul class="space-y-3 text-base-content mb-4">
                             <li>Phù hợp cho 2 người lớn</li>
-                            <li>Bao gồm bữa sáng</li>
                             <li>Không hoàn hủy</li>
                             <li>Nhận phòng: từ 14:00</li>
                             <li>Trả phòng: trước 12:00</li>
                         </ul>
+
+                        <Show
+                          fallback={move || view!{}}
+                          when={move || exclude_date_ranges.read().is_some()}
+                        >
+                            <label class="label">Xem ngày trống</label>
+                            <DateRangePicker exclude_ranges={exclude_date_ranges.read().as_ref().unwrap().clone()} custom_style={String::from("w-full text-lg outline-0 py-1 rounded bg-gray-100 border-black mb-4")} id={String::from("date-range")} date_range_setter={set_pick_date_range} />
+                        </Show>
 
                         <a href={format!("/booking/{}", id.unwrap())} class="btn btn-primary w-full text-primary-content rounded-[var(--radius-box)] text-lg py-3 mb-4">
                             ĐẶT NGAY
@@ -215,5 +212,100 @@ pub fn RoomDetails() -> impl IntoView {
 
             </div>
             <Footer />
+    }
+}
+
+#[component]
+fn AmenityList(amenities: Vec<String>) -> impl IntoView {
+    view! {
+      <div class="mb-10">
+          <h2 class="text-2xl font-semibold text-base-content mb-4">TIỆN ÍCH ĐI KÈM</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6 text-base-content text-opacity-80">
+            <For
+              each={move || amenities.clone()}
+              key={|c| c.clone()}
+              children={|amenity| view! {
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-check-double"></i>
+                    <span>{amenity}</span>
+                </div>
+              }}
+            />
+          </div>
+      </div>
+    }
+}
+
+#[component]
+fn ReviewList() -> impl IntoView {
+    view! {
+      <div>
+        <h2 class="text-2xl font-semibold text-base-content mb-4">ĐÁNH GIÁ</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            // Review Card 1
+            <div class="flex gap-4">
+                <div class="avatar">
+                    <div class="w-12 h-12 rounded-full overflow-hidden">
+                        <img src="https://i.pravatar.cc/150?img=1" alt="Avatar"/>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-semibold text-base-content">Lê Lê</p>
+                    <p class="text-sm text-base-content text-opacity-70 mb-2">4 - 12 - 2020</p>
+                    <p class="text-base-content text-opacity-80 text-sm">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    </p>
+                </div>
+            </div>
+            // Review Card 2
+            <div class="flex gap-4">
+                <div class="avatar">
+                    <div class="w-12 h-12 rounded-full overflow-hidden">
+                        <img src="https://i.pravatar.cc/150?img=2" alt="Avatar"/>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-semibold text-base-content">Mèo Mèo</p>
+                    <p class="text-sm text-base-content text-opacity-70 mb-2">6 - 12 - 2020</p>
+                    <p class="text-base-content text-opacity-80 text-sm">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    </p>
+                </div>
+            </div>
+            // Review Card 3
+            <div class="flex gap-4">
+                <div class="avatar">
+                    <div class="w-12 h-12 rounded-full overflow-hidden">
+                        <img src="https://i.pravatar.cc/150?img=3" alt="Avatar"/>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-semibold text-base-content">Anh Thư</p>
+                    <p class="text-sm text-base-content text-opacity-70 mb-2">4 - 12 - 2020</p>
+                    <p class="text-base-content text-opacity-80 text-sm">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    </p>
+                </div>
+            </div>
+            // Review Card 4
+            <div class="flex gap-4">
+                <div class="avatar">
+                    <div class="w-12 h-12 rounded-full overflow-hidden">
+                        <img src="https://i.pravatar.cc/150?img=4" alt="Avatar"/>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-semibold text-base-content">Nhi Nhi</p>
+                    <p class="text-sm text-base-content text-opacity-70 mb-2">4 - 12 - 2020</p>
+                    <p class="text-base-content text-opacity-80 text-sm">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-primary text-primary-content rounded-[var(--radius-box)] px-6 py-2">
+            Xem thêm đánh giá
+        </button>
+    </div>
     }
 }
