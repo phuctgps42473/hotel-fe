@@ -66,6 +66,6 @@ pub fn DateRangePicker(
     });
 
     view! {
-      <input class={format!("p-0 text-xl font-semibold {}", custom_style)} type="date" id={id_cloned} />
+      <input class={format!("p-0 text-md font-semibold {}", custom_style)} type="date" id={id_cloned} />
     }
 }

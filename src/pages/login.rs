@@ -273,7 +273,7 @@ pub fn Input(
                                 id={id}
                                 placeholder={label_name}
                                 pattern={pattern.unwrap_or(".*".to_string())}
-                                class="input input-ghost w-full border-b border-gray-300 focus:outline-none focus:border-teal-custom pb-2 text-lg placeholder-gray-500"/>
+                                class="input input-ghost w-full border-b border-gray-300 focus:outline-none focus:border-teal-custom pb-2 text-md placeholder-gray-500"/>
                                 <Show
                                   when=move || { error.get().is_some() && !error.get().as_ref().unwrap().is_empty() }
                                   fallback=|| {view! {} }

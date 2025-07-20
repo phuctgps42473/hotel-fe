@@ -23,15 +23,15 @@ pub fn LandingPage() -> impl IntoView {
     let navigate = use_navigate();
     let handle_find_rooms = move || {
         if let Some((checkin, checkout)) = get_check_in_out() {
-            let mut search_path = format!("/search?from={}&to={}", checkin, checkout);
+            let mut search_path = format!("/search?fromDate={}&toDate={}&page=0&size=12", checkin, checkout);
 
             let room_type = room_type.get();
             if !room_type.is_empty() {
-                search_path.push_str(&format!("&type={}", room_type));
+                search_path.push_str(&format!("&roomTypeId={}", room_type));
             };
             let guest_count = guest_count.get();
             if guest_count != 0 {
-                search_path.push_str(&format!("&guest={}", guest_count));
+                search_path.push_str(&format!("&guestCount={}", guest_count));
             };
             navigate(&search_path, NavigateOptions::default())
         }
