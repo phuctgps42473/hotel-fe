@@ -9,5 +9,6 @@ pub mod booking;
 pub mod payment;
 pub mod not_found;
 pub mod about_us;
+pub mod user_profile;
 
 pub use home::Home;
