@@ -4,10 +4,7 @@ use serde::{Deserialize, Serialize};
 use wasm_bindgen::JsCast;
 use web_sys::HtmlInputElement;
 
-use crate::{
-    features::shared::components::{input::Input, spinner::Spinner},
-    libs::fetcher::fetch,
-};
+use crate::{features::shared::components::spinner::Spinner, libs::fetcher::fetch};
 
 #[derive(Debug, Deserialize, Clone)]
 struct UserInfo {
