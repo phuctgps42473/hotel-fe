@@ -54,7 +54,7 @@ pub struct RoomParam {
     id: Option<u64>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 struct BookingRequest {
     #[serde(rename = "roomId")]
     room_id: u64,
@@ -76,7 +76,7 @@ struct BookingResponse {
     booking_id: Option<String>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 struct PaymentRequest {
     #[serde(rename = "bookingId")]
     booking_id: u64,

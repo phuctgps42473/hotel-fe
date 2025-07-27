@@ -1,14 +1,15 @@
 use crate::{
+    libs::fetcher::fetch,
     pages::{
         about_us::AboutUs, booking::Booking, contact::Contact, landing_page::LandingPage,
         login::Login, not_found::NotFound, payment::PaymentCallBack, register::Register,
-        room_details::RoomDetails, search_result::SearchResult, user_profile::UserProfile
+        room_details::RoomDetails, search_result::SearchResult, user_profile::UserProfile,
     },
     Home,
 };
 
 use leptoaster::*;
-use leptos::prelude::*;
+use leptos::{prelude::*, reactive::spawn_local};
 use leptos_meta::*;
 use leptos_router::{
     components::{Route, Router, Routes},
@@ -30,31 +31,53 @@ pub struct GlobalState {
     pub user: Option<UserState>,
 }
 
+impl GlobalState {
+    pub fn new(user: Option<UserState>) -> Self {
+        Self { user }
+    }
+}
+
 #[component]
 pub fn App() -> impl IntoView {
     provide_toaster();
     provide_meta_context();
     provide_context(Store::new(GlobalState::default()));
+    let state = expect_context::<Store<GlobalState>>();
+    // Effect::new(move || {
+    spawn_local(async move {
+        match fetch::<(), UserState>("profile/me", "GET", None).await {
+            Err(e) => {
+                leptos::logging::log!("{:#?}", e);
+            }
+            Ok(res) => {
+                if res.code == 200 {
+                    state.write().user = res.data;
+                    // expect_context::<Store<GlobalState>>().set(GlobalState::new(res.data));
+                }
+            }
+        }
+    });
+    // });
 
     view! {
-        // <Stylesheet id="leptos" href="/style/output.css"/>
+    // <Stylesheet id="leptos" href="/style/output.css"/>
 
-        <Link rel="shortcut icon" type_="image/ico" href="/favicon.ico"/>
-        <Toaster stacked={true} />
-        <Router>
-            <Routes fallback=NotFound>
-                <Route path=StaticSegment("") view=LandingPage/>
-                <Route path=StaticSegment("home") view=Home/>
-                <Route path=StaticSegment("contact") view=Contact/>
-                <Route path=StaticSegment("register") view=Register/>
-                <Route path=StaticSegment("login") view=Login/>
-                <Route path=StaticSegment("search") view=SearchResult/>
-                <Route path=path!("rooms/:id") view=RoomDetails/>
-                <Route path=path!("booking/:id") view=Booking/>
-                <Route path=path!("payment/callback") view=PaymentCallBack/>
-                <Route path=StaticSegment("about-us") view=AboutUs/>
-                <Route path=StaticSegment("profile") view=UserProfile/>
-            </Routes>
-        </Router>
-         }
+    <Link rel="shortcut icon" type_="image/ico" href="/favicon.ico"/>
+    <Toaster stacked={true} />
+    <Router>
+        <Routes fallback=NotFound>
+            <Route path=StaticSegment("") view=LandingPage/>
+            <Route path=StaticSegment("home") view=Home/>
+            <Route path=StaticSegment("contact") view=Contact/>
+            <Route path=StaticSegment("register") view=Register/>
+            <Route path=StaticSegment("login") view=Login/>
+            <Route path=StaticSegment("search") view=SearchResult/>
+            <Route path=path!("rooms/:id") view=RoomDetails/>
+            <Route path=path!("booking/:id") view=Booking/>
+            <Route path=path!("payment/callback") view=PaymentCallBack/>
+            <Route path=StaticSegment("about-us") view=AboutUs/>
+            <Route path=StaticSegment("profile") view=UserProfile/>
+        </Routes>
+    </Router>
+     }
 }

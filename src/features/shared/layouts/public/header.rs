@@ -1,7 +1,7 @@
 use leptos::prelude::*;
 use reactive_stores::Store;
 
-use crate::app::GlobalState;
+use crate::app::{GlobalState, UserState};
 
 #[component]
 pub fn Header() -> impl IntoView {
@@ -10,15 +10,14 @@ pub fn Header() -> impl IntoView {
     view! {
                 <header class="navbar bg-base-100 shadow-sm px-4 md:px-8 lg:px-16 py-4">
                     <div class="flex-1">
-                        <a class="text-2xl font-bold text-base-content" href="#">"ELARIS HOTEL"</a>
+                        <a class="text-2xl font-bold text-base-content" href="/">"ELARIS HOTEL"</a>
                     </div>
                     <div class="flex-none hidden lg:flex">
                         <ul class="menu menu-horizontal p-0">
-                            <li><a class="font-semibold text-base-content hover:text-primary" href="/">"Trang chủ"</a></li>
-                            <li><a class="font-semibold text-base-content hover:text-primary" href="#">"Loại phòng"</a></li>
-                            <li><a class="font-semibold text-base-content hover:text-primary" href="#">"Khám phá"</a></li>
+                            // <li><a class="font-semibold text-base-content hover:text-primary" href="/">"Trang chủ"</a></li>
+                            <li><a class="font-semibold text-base-content hover:text-primary" href="/home">"Khám phá"</a></li>
                             <li><a class="font-semibold text-base-content hover:text-primary" href="/about-us">"Thông tin"</a></li>
-                            <li><a class="font-semibold text-base-content hover:text-primary" href="#">"Liên hệ"</a></li>
+                            // <li><a class="font-semibold text-base-content hover:text-primary" href="/">"Liên hệ"</a></li>
                         </ul>
                     </div>
 
@@ -32,7 +31,7 @@ pub fn Header() -> impl IntoView {
                       }}
                     >
                       <div class="flex-none hidden lg:flex ml-4">
-                          <UserProfile />
+                          <UserProfile user={state.get().user.unwrap()} />
                       </div>
                     </Show>
 
@@ -68,12 +67,18 @@ pub fn Header() -> impl IntoView {
                         ></label>
                         <ul class="menu p-4 w-80 bg-base-100 h-full">
                             <li><a class="font-semibold text-base-content hover:text-primary" href="/" on:click=move |_| set_is_drawer_open.set(false)>"Trang chủ"</a></li>
-                            <li><a class="font-semibold text-base-content hover:text-primary" href="#" on:click=move |_| set_is_drawer_open.set(false)>"Loại phòng"</a></li>
-                            <li><a class="font-semibold text-base-content hover:text-primary" href="#" on:click=move |_| set_is_drawer_open.set(false)>"Khám phá"</a></li>
+                            <li><a class="font-semibold text-base-content hover:text-primary" href="/home" on:click=move |_| set_is_drawer_open.set(false)>"Khám phá"</a></li>
                             <li><a class="font-semibold text-base-content hover:text-primary" href="/about-us" on:click=move |_| set_is_drawer_open.set(false)>"Thông tin"</a></li>
-                            <li><a class="font-semibold text-base-content hover:text-primary" href="#" on:click=move |_| set_is_drawer_open.set(false)>"Liên hệ"</a></li>
-                            <li class="mt-4"><a class="btn btn-ghost text-primary hover:text-primary-focus font-semibold" href="#" on:click=move |_| set_is_drawer_open.set(false)>"Đăng nhập"</a></li>
-                            <li><a class="btn btn-primary text-primary-content font-semibold mt-2" href="#" on:click=move |_| set_is_drawer_open.set(false)>"Đăng ký"</a></li>
+
+                             <Show
+                              when={move || state.read().user.is_some()}
+                              fallback={move || view! {
+                                <li class="mt-4"><a class="btn btn-ghost text-primary hover:text-primary-focus font-semibold" href="#" on:click=move |_| set_is_drawer_open.set(false)>"Đăng nhập"</a></li>
+                                <li><a class="btn btn-primary text-primary-content font-semibold mt-2" href="#" on:click=move |_| set_is_drawer_open.set(false)>"Đăng ký"</a></li>
+                              }}
+                            >
+                              <li><a class="font-semibold text-base-content hover:text-primary" href="/profile" on:click=move |_| set_is_drawer_open.set(false)>"Cá nhân"</a></li>
+                            </Show>
                         </ul>
                     </div>
                 </div>
@@ -81,7 +86,7 @@ pub fn Header() -> impl IntoView {
 }
 
 #[component]
-fn UserProfile() -> impl IntoView {
+fn UserProfile(user: UserState) -> impl IntoView {
     view! {
         <div class="dropdown dropdown-end">
             // Avatar kích hoạt dropdown
@@ -95,12 +100,11 @@ fn UserProfile() -> impl IntoView {
             <ul tabindex="0" class="menu dropdown-content mt-4 z-[1] p-2 shadow-xl bg-base-100 border border-base-300 rounded-box w-60">
                 // Header của menu
                 <div class="px-4 py-2">
-                    <div class="font-bold text-lg text-base-content">"Phan Văn Phú"</div>
-                    <div class="text-sm text-base-content/70 -mt-1">"vanphuuuuuu@gmail.com"</div>
+                    <div class="font-bold text-base-content">{user.fullname}</div>
+                    <div class="text-sm text-base-content/70 -mt-1">{user.email}</div>
                 </div>
                 <div class="divider my-1"></div>
 
-                // Các link hành động
                 <li>
                     <a href="/profile" class="text-base-content hover:bg-primary/10 hover:text-primary rounded-lg">
                         <i class="fas fa-user w-4 mr-2"></i>"Tài khoản của tôi"

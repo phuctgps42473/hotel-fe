@@ -1,8 +1,13 @@
-use leptos::{prelude::*, reactive::spawn_local};
+use leptos::prelude::*;
 use leptos_router::{hooks::use_navigate, NavigateOptions};
 use reactive_stores::Store;
 
-use crate::{app::GlobalState, features::profile::{BookingHistory, Favorites, ProfileInformation, Settings}, layouts::public::Layout};
+use crate::{
+    app::GlobalState,
+    features::profile::{BookingHistory, Favorites, ProfileInformation, Settings},
+    layouts::public::Layout,
+    libs::utils::token::get_access_token,
+};
 
 #[derive(Clone, PartialEq, Copy)]
 enum ProfileTab {
@@ -35,14 +40,12 @@ fn SettingsIcon() -> impl IntoView {
 
 #[component]
 pub fn UserProfile() -> impl IntoView {
-    let state = expect_context::<Store<GlobalState>>();
+    // let state = expect_context::<Store<GlobalState>>();
     let (active_tab, set_active_tab) = signal(ProfileTab::Information);
-
     Effect::new(move || {
-      if state.read().user.is_none() {
-        use_navigate()("/login", NavigateOptions::default());
-        return;
-      }
+        if get_access_token().is_none() {
+            use_navigate()("/login", NavigateOptions::default());
+        }
     });
 
     view! {

@@ -8,6 +8,7 @@ use crate::{
 };
 
 #[derive(Params, PartialEq, Debug, Clone)]
+#[allow(non_snake_case)]
 struct VNPayQuery {
     vnp_Amount: Option<u64>,
     vnp_BankCode: Option<String>,
@@ -23,7 +24,7 @@ struct VNPayQuery {
     vnp_SecureHash: Option<String>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 struct PaymentCallBackRequest {
   #[serde(rename = "bookingId")]
   booking_id: u64,

@@ -12,7 +12,7 @@ use crate::{
     libs::fetcher::fetch,
 };
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 struct RegisterForm {
     #[serde(rename = "fullname")]
     fullname: String,

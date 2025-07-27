@@ -12,7 +12,7 @@ use crate::{
     app::{GlobalState, UserState}, layouts::public::{footer::Footer, header::Header}, libs::fetcher::fetch
 };
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 struct LoginForm {
     email: String,
     password: String,
