@@ -1,12 +1,32 @@
-use leptos::prelude::*;
+use leptos::{prelude::*, reactive::spawn_local};
+use leptos_router::{hooks::use_navigate, NavigateOptions};
 use reactive_stores::Store;
 
-use crate::app::{GlobalState, UserState};
+use crate::{
+    app::{GlobalState, UserState},
+    libs::{fetcher::fetch, utils::token::clear_access_token},
+};
 
 #[component]
 pub fn Header() -> impl IntoView {
     let state = expect_context::<Store<GlobalState>>();
     let (is_drawer_open, set_is_drawer_open) = signal(false);
+
+    let logout = move || {
+        spawn_local(async move {
+            match fetch::<(), ()>("logout", "GET", None).await {
+                Err(e) => leptos::logging::log!("{:#?}", e),
+                Ok(res) => {
+                    if res.code == 200 {
+                        clear_access_token().unwrap();
+                        state.write().user = None;
+                        window().location().set_href("/login").unwrap();
+                    }
+                }
+            }
+        });
+    };
+
     view! {
                 <header class="navbar bg-base-100 shadow-sm px-4 md:px-8 lg:px-16 py-4">
                     <div class="flex-1">
@@ -31,11 +51,9 @@ pub fn Header() -> impl IntoView {
                       }}
                     >
                       <div class="flex-none hidden lg:flex ml-4">
-                          <UserProfile user={state.get().user.unwrap()} />
+                          <UserProfile user={state.get().user.unwrap()} logout={logout} />
                       </div>
                     </Show>
-
-
 
                     <div class="flex-none lg:hidden">
                         <label
@@ -78,6 +96,14 @@ pub fn Header() -> impl IntoView {
                               }}
                             >
                               <li><a class="font-semibold text-base-content hover:text-primary" href="/profile" on:click=move |_| set_is_drawer_open.set(false)>"Cá nhân"</a></li>
+                              <li>
+                                <button
+                                  class="font-semibold text-base-content hover:text-primary"
+                                  on:click=move |_| {
+                                    set_is_drawer_open.set(false);
+                                    logout();
+                                  }
+                                >"Đăng xuất"</button></li>
                             </Show>
                         </ul>
                     </div>
@@ -86,7 +112,7 @@ pub fn Header() -> impl IntoView {
 }
 
 #[component]
-fn UserProfile(user: UserState) -> impl IntoView {
+fn UserProfile(user: UserState, logout: impl Fn() + 'static) -> impl IntoView {
     view! {
         <div class="dropdown dropdown-end">
             // Avatar kích hoạt dropdown
@@ -117,9 +143,9 @@ fn UserProfile(user: UserState) -> impl IntoView {
                 </li>
                 <div class="divider my-1"></div>
                 <li>
-                    <a href="/logout" class="text-error hover:bg-error/10 hover:font-semibold rounded-lg">
+                    <button on:click={move |_| logout()} class="text-error hover:bg-error/10 hover:font-semibold rounded-lg">
                         <i class="fas fa-sign-out-alt w-4 mr-2"></i>"Đăng xuất"
-                    </a>
+                    </button>
                 </li>
             </ul>
         </div>
