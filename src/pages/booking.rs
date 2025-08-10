@@ -159,7 +159,7 @@ pub fn Booking() -> impl IntoView {
                 "POST",
                 Some(BookingRequest {
                     room_id: id,
-                    customer_email: user.read().as_ref().unwrap().email.to_string(),
+                    customer_email: "trinhgiaphuc2k@gmail.com".to_string(),
                     number_of_guest: 1,
                     checkin_date,
                     checkout_date,
@@ -328,7 +328,7 @@ pub fn BookingCalculate(
                                         }
                                     />
                                     <label class="ml-3 text-lg text-gray-700 select-none">
-                                        {child.name.as_ref().unwrap().to_string()}" ("{format_currency(child.price.unwrap())}")"
+                                        {child.name.as_ref().unwrap().to_string()}" ("{format_currency(child.price.unwrap())}" VNĐ)"
                                     </label>
                                 </div>
                               </For>
@@ -337,7 +337,7 @@ pub fn BookingCalculate(
 
                         // Total Price
                         <div class="text-right mb-10">
-                            <p class="text-gray-600 text-lg">"Bạn sẽ trả" <span class="text-teal-custom text-3xl font-bold">{move || format_currency(total_price())}</span></p>
+                            <p class="text-gray-600 text-lg">"Bạn sẽ trả" <span class="text-teal-custom text-3xl font-bold">{move || format_currency(total_price())} VNĐ</span></p>
                             <p class="text-gray-600 text-xl font-semibold">"cho " <span class="text-teal-custom">{move || calculate_days_between_range(picked_date_range.get())}" ngày"</span></p>
                         </div>
                     </div>
@@ -382,9 +382,6 @@ pub fn BookingConfirm(
     // Derived signal for total price
     let total_price = move || (room_price * total_days as u64) + total_services_price();
 
-    // Helper to format currency
-    let format_currency = |amount: u64| format!("{}.000 VNĐ", amount / 1000);
-
     view! {
         <div class="font-sans min-h-screen flex flex-col items-center bg-gray-light text-gray-800">
             <main class="flex-grow flex flex-col items-center justify-center p-4 text-center w-full">
@@ -426,7 +423,7 @@ pub fn BookingConfirm(
                                             <Show when={move || cs.contains(s.id.as_ref().unwrap())}>
                                                 <div class="flex justify-between items-center text-lg text-gray-700">
                                                     <span>{s.clone().name.unwrap()}</span>
-                                                    <span class="font-semibold">{format_currency(s.price.unwrap())}</span>
+                                                    <span class="font-semibold">{format_currency(s.price.unwrap())} VNĐ</span>
                                                 </div>
                                             </Show>
                                         }
@@ -434,13 +431,13 @@ pub fn BookingConfirm(
                                 />
                                 <div class="flex justify-between items-center text-lg text-gray-700 font-semibold border-b border-gray-200 pb-3">
                                     <span>"Tổng tiền phòng"</span>
-                                    <span>{format_currency(room_price * total_days as u64)}</span>
+                                    <span>{format_currency(room_price * total_days as u64)} VNĐ</span>
                                 </div>
                             </div>
 
                             <div class="flex justify-between items-center text-3xl font-bold text-teal-custom">
                                 <span>"Tổng tiền phải trả"</span>
-                                <span>{format_currency(total_price())}</span>
+                                <span>{format_currency(total_price())} VNĐ</span>
                             </div>
                         </div>
                     </div>

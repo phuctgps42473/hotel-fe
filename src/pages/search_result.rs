@@ -17,7 +17,7 @@ use crate::{
     layouts::public::{footer::Footer, header::Header},
     libs::{
         fetcher::{fetch, fetch2},
-        utils::date_utils,
+        utils::{currency_utils, date_utils},
     },
     pages::room_details::Room,
     Pageable, PaginatedResponse,
@@ -485,7 +485,7 @@ fn RoomCard(room: Room) -> impl IntoView {
                         </div>
                         <span class="text-sm opacity-70 text-base-content">(584 reviews)</span>
                     </div>
-                    <p class="text-primary text-lg sm:text-xl font-bold mt-2 sm:mt-0 whitespace-nowrap">{move || room.price_per_night}"/đêm"</p>
+                    <p class="text-primary text-lg sm:text-xl font-bold mt-2 sm:mt-0 whitespace-nowrap">{move || room.price_per_night.map(|p| currency_utils::format_currency(p as u64))}"/đêm"</p>
                 </div>
                 <h2 class="card-title text-base-content text-xl font-bold">"Phòng "{room.room_number}</h2>
                 <div class="text-sm opacity-70 text-base-content space-y-1">

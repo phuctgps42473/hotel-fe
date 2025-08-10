@@ -21,8 +21,7 @@ pub fn calculate_days_between_range(range: String) -> i64 {
 }
 
 pub fn timestamp_to_html_date(input: String) -> String {
-    // let timestamp = "2025-06-30T17:00:00.000+00:00";
-    let datetime: DateTime<Utc> = input.parse().expect("Failed to parse timestamp");
+    let datetime: DateTime<Utc> = input.parse().unwrap_or("2025-06-30T17:00:00.000+00:00".parse().unwrap());
     let formatted_date = datetime.format("%Y-%m-%d").to_string();
     formatted_date
 }

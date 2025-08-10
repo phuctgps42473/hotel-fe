@@ -1,5 +1,6 @@
 use crate::layouts::public::footer::Footer;
 use crate::layouts::public::header::Header;
+use crate::libs::utils::currency_utils::format_currency;
 use leptos::prelude::*;
 
 #[derive(Clone, PartialEq, Debug)]
@@ -11,11 +12,6 @@ struct Room {
     price_per_night: u64,
     rating: f32,
     reviews: u32,
-}
-
-// Helper to format currency
-fn format_currency(amount: u64) -> String {
-    format!("{}.000đ/đêm", amount / 1000)
 }
 
 #[component]
@@ -39,7 +35,7 @@ fn RoomCard(room: Room) -> impl IntoView {
                         <span class="ml-1">{format!("({} reviews)", room.reviews)}</span>
                     </div>
                 </div>
-                <p class="text-2xl font-bold text-teal-custom my-2">{format_currency(room.price_per_night)}</p>
+                <p class="text-2xl font-bold text-teal-custom my-2">{format_currency(room.price_per_night)} VNĐ</p>
                 <div class="card-actions justify-end">
                     <a href={format!("/rooms/{}", room.id)} class="btn btn-primary bg-teal-custom hover:bg-teal-light text-white border-none rounded-lg px-6">"Xem Ngay"</a>
                 </div>

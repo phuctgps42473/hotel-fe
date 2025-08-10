@@ -9,6 +9,7 @@ use crate::features::shared::components::date_range_picker::{DateRangePicker, Ex
 use crate::features::shared::components::spinner::Spinner;
 use crate::layouts::public::{footer::Footer, header::Header};
 use crate::libs::fetcher::{fetch, fetch2};
+use crate::libs::utils::currency_utils::format_currency;
 use crate::pages::booking::BookedDate;
 
 #[derive(Params, PartialEq)]
@@ -181,7 +182,7 @@ pub fn RoomDetails() -> impl IntoView {
                     // Right Column (Booking Panel)
                     <div class="lg:col-span-1 bg-base-100 p-6 rounded-[var(--radius-box)] shadow-md border border-base-200 sticky top-4">
                         <div class="text-3xl font-bold text-base-content mb-2">
-                            {move || room_details.read().price_per_night}"₫/đêm"
+                            {move || room_details.read().price_per_night.map(|p| format_currency(p as u64))}"VNĐ/đêm"
                         </div>
                         <p class="text-sm text-base-content text-opacity-70 mb-6">(Đã bao gồm thuế & phí dịch vụ)</p>
 
