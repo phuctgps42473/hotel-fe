@@ -3,11 +3,14 @@ use std::time::Duration;
 use js_sys::RegExp;
 use leptoaster::*;
 use leptos::{prelude::*, task::spawn_local};
+use leptos_router::hooks::use_navigate;
+use reactive_stores::Store;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::JsCast;
 use web_sys::{Event, HtmlInputElement, SubmitEvent};
 
 use crate::{
+    app::GlobalState,
     layouts::public::{footer::Footer, header::Header},
     libs::fetcher::fetch,
 };
@@ -31,6 +34,14 @@ struct RegisterResponse {
 
 #[component]
 pub fn Register() -> impl IntoView {
+    let state = expect_context::<Store<GlobalState>>();
+
+    Effect::new(move || {
+        if state.read().user.is_some() {
+            use_navigate()("/", Default::default());
+        }
+    });
+
     let navigate = leptos_router::hooks::use_navigate();
     let toaster = expect_toaster();
     let (disable_button, set_disable_button) = signal(true);

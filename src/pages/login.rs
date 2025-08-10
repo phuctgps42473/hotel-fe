@@ -3,6 +3,7 @@ use std::time::Duration;
 use js_sys::{RegExp, JSON};
 use leptoaster::expect_toaster;
 use leptos::{prelude::*, reactive::spawn_local};
+use leptos_router::hooks::use_navigate;
 use reactive_stores::Store;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::{prelude::Closure, JsCast};
@@ -29,6 +30,12 @@ struct LoginResponse {
 #[component]
 pub fn Login() -> impl IntoView {
     let state = expect_context::<Store<GlobalState>>();
+
+    Effect::new(move || {
+      if state.read().user.is_some() {
+        use_navigate()("/", Default::default());
+      }
+    });
 
     let navigate = leptos_router::hooks::use_navigate();
     let toaster = expect_toaster();
