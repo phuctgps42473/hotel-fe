@@ -57,7 +57,7 @@ where
         }
 
         let request =
-            Request::new_with_str_and_init(&format!("{}/{}", BASE_URL, enpoint), &default_options)?;
+            Request::new_with_str_and_init(&format!("{}/{}", BASE_URL, endpoint), &default_options)?;
         request.headers().set("Content-Type", "application/json")?;
         if let Some(access_token) = window().local_storage()?.unwrap().get("accessToken")? {
             request
@@ -74,9 +74,9 @@ where
             .context("Cannot deserialize response's json")
             .unwrap();
 
-        if response.code == 401 && !enpoint.contains("refresh-token") {
+        if response.code == 401 && !endpoint.contains("refresh-token") {
             match refresh_token().await {
-                Ok(_) => fetch::<Req, Res>(enpoint, method, body).await,
+                Ok(_) => fetch::<Req, Res>(endpoint, method, body).await,
                 Err(e) => Err(e),
             };
         }
