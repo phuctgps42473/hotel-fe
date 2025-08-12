@@ -38,7 +38,7 @@ async fn refresh_token() -> Result<(), JsValue> {
 }
 
 pub async fn fetch<Req, Res>(
-    enpoint: &str,
+    endpoint: &str,
     method: &str,
     body: Option<Req>,
 ) -> Result<ApiResponse<Res>, JsValue>
