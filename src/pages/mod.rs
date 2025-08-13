@@ -10,5 +10,6 @@ pub mod payment;
 pub mod not_found;
 pub mod about_us;
 pub mod user_profile;
+pub mod forgot_password;
 
 pub use home::Home;

@@ -1,16 +1,23 @@
 use leptos::{prelude::*, task::spawn_local};
-use leptos_router::{hooks::{use_navigate, use_params}, params::Params, NavigateOptions};
+use leptos_router::{
+    hooks::{use_navigate, use_params},
+    params::Params,
+    NavigateOptions,
+};
 use reactive_stores::Store;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    app::{GlobalState, GlobalStateStoreFields}, features::shared::components::date_range_picker::{DateRangePicker, ExcludeRange}, layouts::public::{footer::Footer, header::Header}, libs::{
+    app::{GlobalState, GlobalStateStoreFields},
+    features::shared::components::date_range_picker::{DateRangePicker, ExcludeRange},
+    layouts::public::{footer::Footer, header::Header},
+    libs::{
         fetcher::fetch,
         utils::{
             currency_utils::format_currency,
             date_utils::{calculate_days_between_range, get_check_in_out},
         },
-    }
+    },
 };
 
 #[derive(Clone, Debug, Deserialize)]
@@ -95,15 +102,13 @@ pub fn Booking() -> impl IntoView {
     let user = state.user();
 
     Effect::new(move || {
-      if user.read().is_none() {
-        use_navigate()("/login", NavigateOptions::default());
-      }
+        if user.read().is_none() {
+            use_navigate()("/login", NavigateOptions::default());
+        }
     });
-
 
     let params = use_params::<RoomParam>();
     let id = params.read().as_ref().unwrap().id.unwrap();
-
     let (room_meta, set_room_meta) = signal(RoomMeta {
         id: None,
         name: None,
@@ -159,7 +164,7 @@ pub fn Booking() -> impl IntoView {
                 "POST",
                 Some(BookingRequest {
                     room_id: id,
-                    customer_email: "trinhgiaphuc2k@gmail.com".to_string(),
+                    customer_email: state.get().user.unwrap().email,
                     number_of_guest: 1,
                     checkin_date,
                     checkout_date,
@@ -202,7 +207,7 @@ pub fn Booking() -> impl IntoView {
           when= move || { confirm.get()  }
           fallback= move || view! {
             <BookingCalculate
-              room_meta={room_meta}
+              room_meta={room_meta.read().clone()}
               set_confirm={set_confirm}
               set_checked_services = {set_checked_services}
               picked_date_range = {picked_date_range}
@@ -213,11 +218,12 @@ pub fn Booking() -> impl IntoView {
              }
         >
           <BookingConfirm
+              room_meta={room_meta.read().clone()}
+              day_range={picked_date_range.read().clone()}
               set_confirm={set_confirm}
               room_price={room_meta.get().price.unwrap()}
               checked_services={checked_services.get()}
               services={services.get()}
-              total_days={calculate_days_between_range(picked_date_range.get())}
               handle_booking={handle_booking}
             />
         </Show>
@@ -232,11 +238,10 @@ pub fn BookingCalculate(
     picked_date_range: ReadSignal<String>,
     set_picked_date_range: WriteSignal<String>,
     services: ReadSignal<Vec<Service>>,
-    room_meta: ReadSignal<RoomMeta>,
+    room_meta: RoomMeta,
     total_price: impl Fn() -> u64 + 'static + Send,
 ) -> impl IntoView {
     let exclude_date_range = room_meta
-        .get()
         .booked_dates
         .iter()
         .map(|d| d.clone().into())
@@ -359,14 +364,17 @@ pub fn BookingCalculate(
 
 #[component]
 pub fn BookingConfirm(
+    day_range: String,
     set_confirm: WriteSignal<bool>,
     room_price: u64,
-    total_days: i64,
+    room_meta: RoomMeta,
     checked_services: Vec<u64>,
     services: Vec<Service>,
     handle_booking: impl Fn() + 'static + Send,
 ) -> impl IntoView {
     let (services, _set_services) = signal(services);
+    let (checkin, checkout) = get_check_in_out(day_range.clone()).unwrap();
+    let total_days = calculate_days_between_range(day_range);
 
     // Derived signal for total services price
     let cs = checked_services.clone();
@@ -398,15 +406,15 @@ pub fn BookingConfirm(
                                     class="w-full h-48 object-cover"
                                 />
                                 <div class="p-4">
-                                    <h3 class="text-xl font-semibold text-gray-800">"Phòng Khách Vua"</h3>
-                                    <p class="text-gray-600 text-sm">"Với view biển và đầy đủ tiện nghi"</p>
+                                    <h3 class="text-xl font-semibold text-gray-800">Phòng {room_meta.name}</h3>
+                                    // <p class="text-gray-600 text-sm">{room_meta}</p>
                                 </div>
                             </div>
                             <div class="space-y-3">
                                 <p class="text-lg text-gray-700"><i class="fas fa-moon mr-2 text-teal-custom"></i>"Số đêm: " <span class="font-semibold">{total_days}</span></p>
-                                <p class="text-lg text-gray-700"><i class="fas fa-calendar-alt mr-2 text-teal-custom"></i>"Ngày nhận phòng: " <span class="font-semibold">"20 Tháng 11"</span></p>
-                                <p class="text-lg text-gray-700"><i class="fas fa-calendar-check mr-2 text-teal-custom"></i>"Ngày trả phòng: " <span class="font-semibold">"22 Tháng 11"</span></p>
-                                <p class="text-lg text-gray-700"><i class="fas fa-users mr-2 text-teal-custom"></i>"Số lượng khách: " <span class="font-semibold">"2"</span></p>
+                                <p class="text-lg text-gray-700"><i class="fas fa-calendar-alt mr-2 text-teal-custom"></i>"Ngày nhận phòng: " <span class="font-semibold">{checkin}</span></p>
+                                <p class="text-lg text-gray-700"><i class="fas fa-calendar-check mr-2 text-teal-custom"></i>"Ngày trả phòng: " <span class="font-semibold">{checkout}</span></p>
+                                // <p class="text-lg text-gray-700"><i class="fas fa-users mr-2 text-teal-custom"></i>"Số lượng khách: " <span class="font-semibold">"2"</span></p>
                             </div>
                         </div>
 
