@@ -23,7 +23,7 @@ use serde::Deserialize;
 pub struct UserState {
     pub email: String,
     pub fullname: String,
-    pub id: u32,
+    pub id: u64,
     pub role: String,
 }
 

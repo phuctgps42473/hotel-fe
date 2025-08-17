@@ -35,7 +35,7 @@ struct ChangePassword {
 }
 
 #[component]
-pub fn ProfileInformation(id: u32) -> impl IntoView {
+pub fn ProfileInformation(id: u64) -> impl IntoView {
     let (info, set_info) = signal(None);
     let (change_pass, set_change_pass) = signal(ChangePassword::default());
 

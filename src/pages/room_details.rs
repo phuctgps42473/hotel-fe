@@ -6,6 +6,7 @@ use leptos_router::{hooks::use_navigate, params::Params, NavigateOptions};
 use serde::Deserialize;
 
 use crate::features::shared::components::date_range_picker::{DateRangePicker, ExcludeRange};
+use crate::features::shared::components::modal::Modal;
 use crate::features::shared::components::spinner::Spinner;
 use crate::layouts::public::{footer::Footer, header::Header};
 use crate::libs::fetcher::{fetch, fetch2};
@@ -302,7 +303,7 @@ fn ReviewList(booking_id: u64) -> impl IntoView {
             Xem thêm đánh giá
         </button>
     </div>
-        <ReviewsModal reviews={reviews} show_modal={show_modal} set_show_modal={set_show_modal} />
+    <ReviewsModal reviews={reviews} show_modal={show_modal} set_show_modal={set_show_modal} />
     }
 }
 
@@ -337,8 +338,7 @@ fn ReviewsModal(
     set_show_modal: WriteSignal<bool>,
 ) -> impl IntoView {
     view! {
-        <dialog class="modal" class:modal-open={show_modal}>
-            <div class="modal-box w-11/12 max-w-3xl">
+        <Modal show_modal={show_modal} set_show_modal={set_show_modal} >
                 <h3 class="font-bold text-2xl text-primary mb-4">Tất Cả Đánh Giá</h3>
 
                 // Vùng nội dung có thể cuộn
@@ -387,15 +387,6 @@ fn ReviewsModal(
                         </div>
                     </Show>
                 </div>
-
-                <div class="modal-action mt-6">
-                    <button class="btn rounded-[var(--radius-box)]" on:click=move |_| set_show_modal.set(false)>Đóng</button>
-                </div>
-            </div>
-
-            <form method="dialog" class="modal-backdrop">
-                <button on:click=move |_| set_show_modal.set(false)>close</button>
-            </form>
-        </dialog>
+        </ Modal>
     }
 }

@@ -4,7 +4,10 @@ use reactive_stores::Store;
 
 use crate::{
     app::GlobalState,
-    features::profile::{BookingHistory, Favorites, ProfileInformation, Settings},
+    features::{
+        profile::{BookingHistory, Favorites, ProfileInformation, Settings},
+        shared::components::spinner::Spinner,
+    },
     layouts::public::Layout,
     libs::utils::token::get_access_token,
 };
@@ -40,7 +43,7 @@ fn SettingsIcon() -> impl IntoView {
 
 #[component]
 pub fn UserProfile() -> impl IntoView {
-    // let state = expect_context::<Store<GlobalState>>();
+    let state = expect_context::<Store<GlobalState>>();
     let (active_tab, set_active_tab) = signal(ProfileTab::Information);
     Effect::new(move || {
         if get_access_token().is_none() {
@@ -109,20 +112,25 @@ pub fn UserProfile() -> impl IntoView {
 
                     // Right Content Area
                     <main class="lg:col-span-3">
-                        <div class="bg-base-100 p-6 md:p-8 rounded-[var(--radius-selector)] shadow-md">
-                            {move || match *active_tab.read() {
-                                ProfileTab::Information => view! { <ProfileInformation
-                                // id={state.read().user.as_ref().unwrap().id}
-                                id={5}
-                                /> }.into_any(),
-                                ProfileTab::Bookings => view! { <BookingHistory
-                                // id={state.read().user.as_ref().unwrap().id}
-                                id={5}
-                                 /> }.into_any(),
-                                ProfileTab::Favorites => view! { <Favorites /> }.into_any(),
-                                ProfileTab::Settings => view! { <Settings /> }.into_any(),
-                            }}
-                        </div>
+                        <Show
+                            when={move || state.read().user.is_some()}
+                            fallback={|| view!{<Spinner />}}
+                        >
+                            <div class="bg-base-100 p-6 md:p-8 rounded-[var(--radius-selector)] shadow-md">
+                                {move || match *active_tab.read() {
+                                    ProfileTab::Information => view! { <ProfileInformation
+                                    id={state.read().user.as_ref().unwrap().id}
+                                    // id={5}
+                                    /> }.into_any(),
+                                    ProfileTab::Bookings => view! { <BookingHistory
+                                    user_id={state.read().user.as_ref().unwrap().id}
+                                    // id={5}
+                                    /> }.into_any(),
+                                    ProfileTab::Favorites => view! { <Favorites /> }.into_any(),
+                                    ProfileTab::Settings => view! { <Settings /> }.into_any(),
+                                }}
+                            </div>
+                        </Show>
                     </main>
                 </div>
             </div>
