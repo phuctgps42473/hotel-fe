@@ -1,7 +1,10 @@
 use crate::{
     libs::fetcher::fetch,
     pages::{
-        about_us::AboutUs, booking::Booking, contact::Contact, forgot_password::ForgotPassword, landing_page::LandingPage, login::Login, not_found::NotFound, payment::PaymentCallBack, register::Register, room_details::RoomDetails, search_result::SearchResult, user_profile::UserProfile
+        about_us::AboutUs, booking::Booking, contact::Contact, forgot_password::ForgotPassword,
+        landing_page::LandingPage, login::Login, not_found::NotFound, payment::PaymentCallBack,
+        register::Register, room_details::RoomDetails, search_result::SearchResult,
+        user_profile::UserProfile,
     },
     Home,
 };

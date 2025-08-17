@@ -10,6 +10,7 @@ use crate::features::shared::components::spinner::Spinner;
 use crate::layouts::public::{footer::Footer, header::Header};
 use crate::libs::fetcher::{fetch, fetch2};
 use crate::libs::utils::currency_utils::format_currency;
+use crate::libs::utils::date_utils;
 use crate::pages::booking::BookedDate;
 
 #[derive(Params, PartialEq)]
@@ -20,7 +21,7 @@ pub struct RoomParam {
 #[derive(Default, Debug, Deserialize, Clone)]
 pub struct Room {
     #[serde(rename = "id")]
-    pub id: Option<i32>,
+    pub id: Option<u64>,
     #[serde(rename = "roomNumber")]
     pub room_number: Option<String>,
     #[serde(rename = "roomTypeID")]
@@ -63,7 +64,7 @@ pub fn RoomDetails() -> impl IntoView {
     let (exclude_date_ranges, set_exclude_date_ranges) = signal(None);
 
     Effect::new(move || {
-        let room_id = id.as_ref().unwrap().clone();
+        let room_id = *id.as_ref().unwrap();
         spawn_local(async move {
             match fetch2::<(), Room>(&format!("rooms/{}", room_id), "GET", None).await {
                 Err(e) => leptos::logging::log!("{:?}", e),
@@ -75,7 +76,7 @@ pub fn RoomDetails() -> impl IntoView {
     });
 
     Effect::new(move || {
-        let room_id = id.as_ref().unwrap().clone();
+        let room_id = *id.as_ref().unwrap();
         spawn_local(async move {
             match fetch::<(), Vec<BookedDate>>(&format!("bookings/dates/{}", room_id), "GET", None)
                 .await
@@ -171,11 +172,12 @@ pub fn RoomDetails() -> impl IntoView {
                         >
                           <AmenityList amenities={room_details.get().amenities.unwrap().split(",").map(|a| a.to_string()).collect()} />
                         </Show>
+
                         <Show
                           fallback={move || view!{<Spinner />}}
-                          when={move || room_details.read().amenities.is_some()}
+                          when={move || room_details.read().id.is_some()}
                         >
-                        <ReviewList />
+                        <ReviewList booking_id={id.unwrap()} />
                         </Show>
                     </div>
 
@@ -237,76 +239,163 @@ fn AmenityList(amenities: Vec<String>) -> impl IntoView {
     }
 }
 
+#[derive(Debug, Deserialize, Clone)]
+struct Review {
+    id: u64,
+    #[serde(rename = "bookingId")]
+    booking_id: u64,
+    #[serde(rename = "customerName")]
+    customer_name: String,
+    rating: u8,
+    comment: String,
+    #[serde(rename = "reviewDate")]
+    review_date: String,
+}
+
 #[component]
-fn ReviewList() -> impl IntoView {
+fn ReviewList(booking_id: u64) -> impl IntoView {
+    let (reviews, set_reviews) = signal(Vec::new());
+    let (show_modal, set_show_modal) = signal(false);
+
+    Effect::new(move || {
+        spawn_local(async move {
+            match fetch::<(), Vec<Review>>(&format!("review/booking/{}", booking_id), "GET", None)
+                .await
+            {
+                Err(e) => leptos::logging::log!("{:?}", e),
+                Ok(res) => {
+                    if res.code == 200 {
+                        set_reviews.set(res.data.unwrap());
+                    }
+                }
+            }
+        });
+    });
+
     view! {
       <div>
         <h2 class="text-2xl font-semibold text-base-content mb-4">ĐÁNH GIÁ</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            // Review Card 1
-            <div class="flex gap-4">
-                <div class="avatar">
-                    <div class="w-12 h-12 rounded-full overflow-hidden">
-                        <img src="https://i.pravatar.cc/150?img=1" alt="Avatar"/>
+            <For
+              each={move || reviews.get()}
+              key={|r| r.id}
+              children={|review| view! {
+                <div class="flex gap-4">
+                    // <div class="avatar">
+                    //     <div class="w-12 h-12 rounded-full overflow-hidden">
+                    //         <img src="https://i.pravatar.cc/150?img=1" alt="Avatar"/>
+                    //     </div>
+                    // </div>
+                    <div>
+                        <p class="font-semibold text-base-content">{review.customer_name}</p>
+                        <StarRating rating={review.rating} />
+                        <p class="text-sm text-base-content text-opacity-70 mb-2">{ date_utils::timestamp_to_html_date(review.review_date) }</p>
+                        <p class="text-base-content text-opacity-80 text-sm truncate w-64">
+                        {review.comment}
+                        </p>
                     </div>
                 </div>
-                <div>
-                    <p class="font-semibold text-base-content">Lê Lê</p>
-                    <p class="text-sm text-base-content text-opacity-70 mb-2">4 - 12 - 2020</p>
-                    <p class="text-base-content text-opacity-80 text-sm">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                    </p>
-                </div>
-            </div>
-            // Review Card 2
-            <div class="flex gap-4">
-                <div class="avatar">
-                    <div class="w-12 h-12 rounded-full overflow-hidden">
-                        <img src="https://i.pravatar.cc/150?img=2" alt="Avatar"/>
-                    </div>
-                </div>
-                <div>
-                    <p class="font-semibold text-base-content">Mèo Mèo</p>
-                    <p class="text-sm text-base-content text-opacity-70 mb-2">6 - 12 - 2020</p>
-                    <p class="text-base-content text-opacity-80 text-sm">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                    </p>
-                </div>
-            </div>
-            // Review Card 3
-            <div class="flex gap-4">
-                <div class="avatar">
-                    <div class="w-12 h-12 rounded-full overflow-hidden">
-                        <img src="https://i.pravatar.cc/150?img=3" alt="Avatar"/>
-                    </div>
-                </div>
-                <div>
-                    <p class="font-semibold text-base-content">Anh Thư</p>
-                    <p class="text-sm text-base-content text-opacity-70 mb-2">4 - 12 - 2020</p>
-                    <p class="text-base-content text-opacity-80 text-sm">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                    </p>
-                </div>
-            </div>
-            // Review Card 4
-            <div class="flex gap-4">
-                <div class="avatar">
-                    <div class="w-12 h-12 rounded-full overflow-hidden">
-                        <img src="https://i.pravatar.cc/150?img=4" alt="Avatar"/>
-                    </div>
-                </div>
-                <div>
-                    <p class="font-semibold text-base-content">Nhi Nhi</p>
-                    <p class="text-sm text-base-content text-opacity-70 mb-2">4 - 12 - 2020</p>
-                    <p class="text-base-content text-opacity-80 text-sm">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                    </p>
-                </div>
-            </div>
+              }}
+            />
         </div>
-        <button class="btn btn-primary text-primary-content rounded-[var(--radius-box)] px-6 py-2">
+        <button on:click={move |_| set_show_modal.set(true)} class="btn btn-primary text-primary-content rounded-[var(--radius-box)] px-6 py-2">
             Xem thêm đánh giá
         </button>
     </div>
+        <ReviewsModal reviews={reviews} show_modal={show_modal} set_show_modal={set_show_modal} />
+    }
+}
+
+#[component]
+fn StarRating(rating: u8, #[prop(optional)] max_rating: u8) -> impl IntoView {
+    let max = if max_rating == 0 { 5 } else { max_rating };
+    view! {
+        <div class="flex items-center">
+            {(0..max).map(move |i| {
+                let is_filled = i < rating;
+                view! {
+                    <svg
+                        class="w-5 h-5"
+                        class:text-accent=is_filled
+                        class:text-base-300=move || !is_filled
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                }
+            }).collect_view()}
+        </div>
+    }
+}
+
+#[component]
+fn ReviewsModal(
+    reviews: ReadSignal<Vec<Review>>,
+    show_modal: ReadSignal<bool>,
+    set_show_modal: WriteSignal<bool>,
+) -> impl IntoView {
+    view! {
+        <dialog class="modal" class:modal-open={show_modal}>
+            <div class="modal-box w-11/12 max-w-3xl">
+                <h3 class="font-bold text-2xl text-primary mb-4">Tất Cả Đánh Giá</h3>
+
+                // Vùng nội dung có thể cuộn
+                <div class="max-h-[60vh] overflow-y-auto pr-4 -mr-4">
+                    // Xử lý trường hợp không có review
+                    <Show
+                        when=move || !reviews.read().is_empty()
+                        fallback=|| view! {
+                            <div class="flex flex-col items-center justify-center text-center py-16">
+                                <p class="text-lg text-base-content/70">"Chưa có đánh giá nào cho phòng này."</p>
+                            </div>
+                        }
+                    >
+                        <div class="space-y-6">
+                            <For
+                                each=move || reviews.get()
+                                key=|r| r.id
+                                children=move |review| {
+                                    view! {
+                                        <div class="p-1"> // Thêm padding để hiệu ứng focus đẹp hơn
+                                            <div class="flex gap-4">
+                                                <div class="avatar">
+                                                    <div class="w-12 h-12 rounded-full">
+                                                         // Dùng tên khách hàng làm seed cho avatar
+                                                         <img src={format!("https://i.pravatar.cc/150?u={}", review.customer_name)} alt="Avatar"/>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-grow">
+                                                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-1">
+                                                        <div>
+                                                            <p class="font-bold text-base-content">{ review.customer_name }</p>
+                                                            <p class="text-xs text-base-content/60">"Ngày đánh giá: "{ date_utils::timestamp_to_html_date(review.review_date) }</p>
+                                                        </div>
+                                                        <StarRating rating={review.rating} />
+                                                    </div>
+                                                    <p class="text-base-content/80 text-sm leading-relaxed whitespace-pre-wrap">
+                                                        { review.comment }
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="divider my-4"></div>
+                                        </div>
+                                    }
+                                }
+                            />
+                        </div>
+                    </Show>
+                </div>
+
+                <div class="modal-action mt-6">
+                    <button class="btn rounded-[var(--radius-box)]" on:click=move |_| set_show_modal.set(false)>Đóng</button>
+                </div>
+            </div>
+
+            <form method="dialog" class="modal-backdrop">
+                <button on:click=move |_| set_show_modal.set(false)>close</button>
+            </form>
+        </dialog>
     }
 }
