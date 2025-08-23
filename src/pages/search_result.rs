@@ -100,7 +100,6 @@ pub fn SearchResult() -> impl IntoView {
     let (rooms, set_rooms) = signal(None);
     let (pagination, set_pagination) = signal(Pagination::default());
     let (price_error, set_price_error) = signal(None);
-    let (asc, set_asc) = signal(true);
     let (room_types, set_room_types) = signal(vec![]);
 
     let query = use_query::<RoomSearch>();
@@ -187,7 +186,6 @@ pub fn SearchResult() -> impl IntoView {
         let (from_date, to_date) = date_utils::get_check_in_out(date_range.get()).unwrap();
         search.fromDate = Some(from_date);
         search.toDate = Some(to_date);
-        leptos::logging::log!("{}", search.to_string());
         nav(&search.to_string(), NavigateOptions::default())
     };
 
@@ -470,7 +468,7 @@ fn RoomCard(room: Room) -> impl IntoView {
     view! {
         <a href={href} class="card card-side bg-base-200 shadow-md p-4 flex flex-col sm:flex-row cursor-pointer">
             <figure class="w-full sm:w-1/3 h-48 sm:h-auto overflow-hidden rounded-md flex-shrink-0">
-                <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fw0.peakpx.com%2Fwallpaper%2F247%2F443%2FHD-wallpaper-taj-hotel-mumbai.jpg&f=1&nofb=1&ipt=bd6d720da8e8c5bde64165dc3e8e3e4d6858e564d8367720676438bb486ae478" alt="Hotel 1" class="object-cover w-full h-full"/>
+                <img src={room.image_url.unwrap_or("https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fw0.peakpx.com%2Fwallpaper%2F247%2F443%2FHD-wallpaper-taj-hotel-mumbai.jpg&f=1&nofb=1&ipt=bd6d720da8e8c5bde64165dc3e8e3e4d6858e564d8367720676438bb486ae478".to_string())} alt="Hotel 1" class="object-cover w-full h-full"/>
             </figure>
             <div class="card-body p-4 sm:p-6 flex flex-col justify-between w-full sm:w-2/3">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">

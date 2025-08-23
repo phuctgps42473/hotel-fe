@@ -37,6 +37,8 @@ pub struct Room {
     pub status: Option<String>,
     #[serde(rename = "amenities")]
     pub amenities: Option<String>,
+    #[serde(rename = "imageUrl")]
+    pub image_url: Option<String>,
 }
 
 #[derive(Default, Debug, Deserialize, Clone)]
@@ -51,11 +53,21 @@ pub struct RoomType {
     pub description: Option<String>,
 }
 
+#[derive(Debug, Deserialize, Clone)]
+pub struct RoomImage {
+    id: Option<u64>,
+    #[serde(rename = "imageUrl")]
+    pub image_url: Option<String>,
+    #[serde(rename = "createdAt")]
+    pub created_at: Option<String>,
+}
+
 #[component]
 pub fn RoomDetails() -> impl IntoView {
     let params = use_params::<RoomParam>();
     let id = params.read().as_ref().unwrap().id;
     let (room_details, set_room_details) = signal(Room::default());
+    let (room_images, set_room_images) = signal(Vec::new());
     if id.is_none() {
         use_navigate()("/notfound", NavigateOptions::default());
     }
@@ -71,6 +83,22 @@ pub fn RoomDetails() -> impl IntoView {
                 Err(e) => leptos::logging::log!("{:?}", e),
                 Ok(rdetails) => {
                     set_room_details.set(rdetails);
+                }
+            }
+        });
+    });
+
+    Effect::new(move || {
+        let room_id = *id.as_ref().unwrap();
+        spawn_local(async move {
+            match fetch::<(), Vec<RoomImage>>(&format!("rooms/{}/images", room_id), "GET", None)
+                .await
+            {
+                Err(e) => leptos::logging::log!("{:?}", e),
+                Ok(res) => {
+                    if res.code == 200 {
+                        set_room_images.set(res.data.unwrap());
+                    }
                 }
             }
         });
@@ -111,18 +139,41 @@ pub fn RoomDetails() -> impl IntoView {
 
                 // Image Gallery Section
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-10">
-                    // Main image
-                    <div class="col-span-1 lg:col-span-1">
-                        <img src="https://picsum.photos/id/20/800/600" alt="Room Main" class="w-full h-full object-cover rounded-[var(--radius-box)]"/>
-                    </div>
-                    // Smaller images
+                    <Show
+                        when={move || !room_images.read().is_empty()}
+                        fallback={|| view!{}}
+                    >
+                        <div class="col-span-1 lg:col-span-1">
+                            <img src={room_images.get().get(0).as_ref().unwrap().image_url.as_ref().unwrap().clone()} alt="Room Main" class="w-[800px] h-[600px] object-cover rounded-[var(--radius-box)]"/>
+                        </div>
+                    </Show>
                     <div class="grid grid-cols-2 gap-4">
-                        <img src="https://picsum.photos/id/21/400/300" alt="Room thumbnail 1" class="w-full h-full object-cover rounded-[var(--radius-box)]"/>
-                        <img src="https://picsum.photos/id/22/400/300" alt="Room thumbnail 2" class="w-full h-full object-cover rounded-[var(--radius-box)]"/>
-                        <img src="https://picsum.photos/id/23/400/300" alt="Room thumbnail 3" class="w-full h-full object-cover rounded-[var(--radius-box)]"/>
-                        <img src="https://picsum.photos/id/24/400/300" alt="Room thumbnail 4" class="w-full h-full object-cover rounded-[var(--radius-box)]"/>
+                        <For
+                            each={move || room_images.get().into_iter().enumerate()}
+                            key={|(_, image)| image.id}
+                            children={|(index, image)| {
+                                if index != 0 {
+                                    view! {
+                                            <img src={image.image_url} alt="Room thumbnail 1" class="w-[400px] h-[300px] object-cover rounded-[var(--radius-box)]"/>
+                                    }.into_any()
+                                } else {
+                                    view!{}.into_any()
+                                }
+                            }}
+                        />
                     </div>
                 </div>
+                    // Main image
+                    // <div class="col-span-1 lg:col-span-1">
+                    //     <img src="https://picsum.photos/id/20/800/600" alt="Room Main" class="w-full h-full object-cover rounded-[var(--radius-box)]"/>
+                    // </div>
+                    // // Smaller images
+                    // <div class="grid grid-cols-2 gap-4">
+                    //     <img src="https://picsum.photos/id/21/400/300" alt="Room thumbnail 1" class="w-full h-full object-cover rounded-[var(--radius-box)]"/>
+                    //     <img src="https://picsum.photos/id/22/400/300" alt="Room thumbnail 2" class="w-full h-full object-cover rounded-[var(--radius-box)]"/>
+                    //     <img src="https://picsum.photos/id/23/400/300" alt="Room thumbnail 3" class="w-full h-full object-cover rounded-[var(--radius-box)]"/>
+                    //     <img src="https://picsum.photos/id/24/400/300" alt="Room thumbnail 4" class="w-full h-full object-cover rounded-[var(--radius-box)]"/>
+                    // </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     // Left Column (Room Details)
