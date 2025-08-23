@@ -2,6 +2,46 @@
 @plugin '@tailwindcss/typography';
 @plugin '@tailwindcss/forms';
 @plugin 'daisyui';
+@plugin 'daisyui/theme' {
+  name: "cool";
+  default: false;
+  prefersdark: false;
+  color-scheme: "light";
+  --color-base-100: "#FFFFFF";
+  --color-base-200: "#F5F5F5";
+  --color-base-300: "#E0E0E0";
+  --color-base-content: "#333333";
+  --color-primary: "#228E9E";
+  --color-primary-content: "#FFFFFF";
+  --color-secondary: "#72C1CA";
+  --color-secondary-content: "#FFFFFF";
+  --color-accent: "#F2C872";
+  --color-accent-content: "#333333";
+  --color-neutral: "#333333";
+  --color-neutral-content: "#FFFFFF";
+  --color-info: "#3B7E97";
+  --color-info-content: "#FFFFFF";
+  --color-success: "#5B7B47";
+  --color-success-content: "#FFFFFF";
+  --color-warning: "#F2C872";
+  --color-warning-content: "#333333";
+  --color-error: "#B71C1C";
+  --color-error-content: "#FFFFFF";
+  --radius-selector: "1rem";
+  --radius-field: "0rem";
+  --radius-box: "0.25rem";
+  --size-selector: "0.25rem";
+  --size-field: "0.25rem";
+  --border: "1px";
+  --depth: "0";
+  --noise: "0";
+}
+@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+@theme {
+  --font-roboto: "Roboto", sans-serif;
+}
+
+
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;

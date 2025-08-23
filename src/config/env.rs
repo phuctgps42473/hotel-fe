@@ -1,0 +1,1 @@
+pub const BASE_URL: &'static str = "http://localhost:8080/api";
