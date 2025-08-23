@@ -27,8 +27,11 @@ jobs:
       - name: Install Trunk
         uses: jetli/trunk-action@v0.5.0
 
+      - name: Install Node deps
+        run: npm install
+
       - name: Build Tailwind CSS
-        run: npx @tailwindcss/cli -i ./style/input.css -o ./style/output.css --minify
+        run: npm run build
 
       - name: Build (release mode, WASM target)
         run: |
