@@ -15,11 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      # --- Checkout repo ---
       - name: Checkout source
         uses: actions/checkout@v4
 
-      # --- Rust setup & caching ---
       - name: Set up Rust (stable)
         uses: dtolnay/rust-toolchain@stable
 
@@ -29,42 +27,19 @@ jobs:
       - name: Install Trunk
         uses: jetli/trunk-action@v0.5.0
 
-      # --- Node & pnpm setup ---
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Install deps
-        run: pnpm ci
-
-      # --- Build TailwindCSS (cached) ---
-      - name: Cache Tailwind build
-        uses: actions/cache@v4
-        with:
-          path: style/output.css
-          key: ${{ runner.os }}-tailwind-${{ hashFiles('style/input.css', 'tailwind.config.*') }}
-          restore-keys: |
-            ${{ runner.os }}-tailwind-
+      - name: Install Deps
+        run: npm ci
 
       - name: Build Tailwind CSS
-        run: pnpm run build
+        run: npm run build
 
-      # --- Build Rust WASM app ---
       - name: Build (release mode, WASM target)
         run: |
           rustup target add wasm32-unknown-unknown
           trunk build --release
 
-      # --- Vercel deployment ---
       - name: Install Vercel CLI
-        run: pnpm add -g vercel@latest
+        run: npm install --global vercel@latest
 
       - name: Pull Vercel environment info
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
