@@ -27,6 +27,9 @@ jobs:
       - name: Install Trunk
         uses: jetli/trunk-action@v0.5.0
 
+      - name: Build Tailwind CSS
+        run: npx @tailwindcss/cli -i ./style/input.css -o ./style/output.css --minify
+
       - name: Build (release mode, WASM target)
         run: |
           rustup target add wasm32-unknown-unknown
