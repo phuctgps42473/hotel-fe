@@ -120,11 +120,9 @@ pub fn UserProfile() -> impl IntoView {
                                 {move || match *active_tab.read() {
                                     ProfileTab::Information => view! { <ProfileInformation
                                     id={state.read().user.as_ref().unwrap().id}
-                                    // id={5}
                                     /> }.into_any(),
                                     ProfileTab::Bookings => view! { <BookingHistory
                                     user_id={state.read().user.as_ref().unwrap().id}
-                                    // id={5}
                                     /> }.into_any(),
                                     ProfileTab::Favorites => view! { <Favorites /> }.into_any(),
                                     ProfileTab::Settings => view! { <Settings /> }.into_any(),
