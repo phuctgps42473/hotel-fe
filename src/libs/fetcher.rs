@@ -2,11 +2,11 @@ use eyre::{Context, Result};
 use js_sys::JSON;
 use leptos::prelude::window;
 use serde::{Deserialize, Serialize};
-use wasm_bindgen::{JsCast, JsError, JsValue};
+use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{Request, RequestInit, RequestMode, Response};
 
-use crate::{config::env::BASE_URL, ApiResponse};
+use crate::{config::env::get_base_url, ApiResponse};
 
 #[derive(Debug, Deserialize)]
 struct TokenResponse {
@@ -15,7 +15,7 @@ struct TokenResponse {
 }
 
 async fn refresh_token() -> Result<(), JsValue> {
-    let request = Request::new_with_str(&format!("{}/api/auth/refresh-token", BASE_URL))?;
+    let request = Request::new_with_str(&format!("{}/api/auth/refresh-token", get_base_url()))?;
     request.headers().set("Content-Type", "application/json")?;
 
     let promise = window().fetch_with_request(&request);
@@ -56,8 +56,10 @@ where
             default_options.set_body(body.as_ref());
         }
 
-        let request =
-            Request::new_with_str_and_init(&format!("{}/{}", BASE_URL, endpoint), &default_options)?;
+        let request = Request::new_with_str_and_init(
+            &format!("{}/{}", get_base_url(), endpoint),
+            &default_options,
+        )?;
         request.headers().set("Content-Type", "application/json")?;
         if let Some(access_token) = window().local_storage()?.unwrap().get("accessToken")? {
             request
@@ -82,7 +84,8 @@ where
         }
 
         Ok(response)
-    }).await
+    })
+    .await
 }
 
 pub async fn fetch2<Req, Res>(
@@ -103,8 +106,10 @@ where
         default_options.set_body(body);
     }
 
-    let request =
-        Request::new_with_str_and_init(&format!("{}/{}", BASE_URL, enpoint), &default_options)?;
+    let request = Request::new_with_str_and_init(
+        &format!("{}/{}", get_base_url(), enpoint),
+        &default_options,
+    )?;
     request.headers().set("Content-Type", "application/json")?;
     if let Some(access_token) = window().local_storage()?.unwrap().get("accessToken")? {
         request
