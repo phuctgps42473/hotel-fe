@@ -1,43 +1,36 @@
+use crate::features::shared::components::spinner::Spinner;
 use crate::layouts::public::footer::Footer;
 use crate::layouts::public::header::Header;
+use crate::libs::fetcher::{fetch, fetch2};
 use crate::libs::utils::currency_utils::format_currency;
+use crate::pages::room_details::Room;
+use crate::{PaginatedResponse, RoomType};
 use leptos::prelude::*;
-
-#[derive(Clone, PartialEq, Debug)]
-struct Room {
-    id: u32,
-    name: String,
-    category: String,
-    image_url: String,
-    price_per_night: u64,
-    rating: f32,
-    reviews: u32,
-}
+use leptos::reactive::spawn_local;
 
 #[component]
 fn RoomCard(room: Room) -> impl IntoView {
     view! {
         <div class="card bg-white shadow-lg rounded-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
             <figure class="h-56"> // Fixed height for image container
-                <img src={room.image_url} alt={room.name.clone()} class="w-full h-full object-cover"/>
+                <img src={room.image_url} alt={room.id.unwrap()} class="w-full h-full object-cover"/>
             </figure>
             <div class="card-body p-4">
-                <h2 class="card-title text-xl font-bold text-gray-800">{room.name}</h2>
+                <h2 class="card-title text-xl font-bold text-gray-800">"Phòng số "{room.room_number}</h2>
                 <div class="flex items-center text-sm text-gray-500 my-1">
-                        <a href={format!("/rooms/{}", room.id)} class="hover:text-teal-custom">"Xem chi tiết phòng"</a>
+                    <a href={format!("/rooms/{}", room.id.unwrap())} class="hover:text-teal-custom">"Xem chi tiết phòng"</a>
                     <span class="mx-1">"•"</span>
                     <div class="flex items-center">
                         <i class="fas fa-star text-yellow-400"></i>
                         <i class="fas fa-star text-yellow-400 ml-0.5"></i>
                         <i class="fas fa-star text-yellow-400 ml-0.5"></i>
-                        <i class="fas fa-star text-gray-300 ml-0.5"></i>
-                        <i class="fas fa-star text-gray-300 ml-0.5"></i>
-                        <span class="ml-1">{format!("({} reviews)", room.reviews)}</span>
+                        <i class="fas fa-star text-yellow-400 ml-0.5"></i>
+                        <i class="fas fa-star text-yellow-400 ml-0.5"></i>
                     </div>
                 </div>
-                <p class="text-2xl font-bold text-teal-custom my-2">{format_currency(room.price_per_night)} VNĐ</p>
+                <p class="text-2xl font-bold text-teal-custom my-2">{format_currency(room.price_per_night.unwrap() as u64)} VNĐ</p>
                 <div class="card-actions justify-end">
-                    <a href={format!("/rooms/{}", room.id)} class="btn btn-primary bg-teal-custom hover:bg-teal-light text-white border-none rounded-lg px-6">"Xem Ngay"</a>
+                    <a href={format!("/rooms/{}", room.id.unwrap())} class="btn btn-primary bg-teal-custom hover:bg-teal-light text-white border-none rounded-lg px-6">"Xem Ngay"</a>
                 </div>
             </div>
         </div>
@@ -46,32 +39,43 @@ fn RoomCard(room: Room) -> impl IntoView {
 
 #[component]
 pub fn Home() -> impl IntoView {
-    let all_rooms_data = vec![
-        Room { id: 1, name: "Phòng khách vua".to_string(), category: "Phòng khách".to_string(), image_url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2940&auto=format&fit=crop".to_string(), price_per_night: 4290000, rating: 3.0, reviews: 75 },
-        Room { id: 2, name: "Phòng khách đôi".to_string(), category: "Phòng khách".to_string(), image_url: "https://images.unsplash.com/photo-1598454238505-fab00095ab7c?q=80&w=2940&auto=format&fit=crop".to_string(), price_per_night: 4290000, rating: 3.0, reviews: 75 },
-        Room { id: 3, name: "Phòng khách hướng thành phố".to_string(), category: "Phòng khách".to_string(), image_url: "https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=2940&auto=format&fit=crop".to_string(), price_per_night: 4290000, rating: 3.0, reviews: 75 },
-        Room { id: 4, name: "Phòng đôi hướng thành phố".to_string(), category: "Phòng khách".to_string(), image_url: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=2940&auto=format&fit=crop".to_string(), price_per_night: 4290000, rating: 3.0, reviews: 75 },
-        Room { id: 5, name: "Phòng đôi hướng sông".to_string(), category: "Phòng khách".to_string(), image_url: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2940&auto=format&fit=crop".to_string(), price_per_night: 4290000, rating: 3.0, reviews: 75 },
-        Room { id: 6, name: "Phòng đôi Executive".to_string(), category: "Phòng Suite".to_string(), image_url: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=2940&auto=format&fit=crop".to_string(), price_per_night: 4290000, rating: 3.0, reviews: 75 },
-        Room { id: 7, name: "Phòng vua Deluxe hướng sông".to_string(), category: "Phòng Suite".to_string(), image_url: "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?q=80&w=2940&auto=format&fit=crop".to_string(), price_per_night: 4290000, rating: 3.0, reviews: 75 },
-        Room { id: 8, name: "Phòng vua Premium hướng sông".to_string(), category: "Phòng Suite".to_string(), image_url: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?q=80&w=2940&auto=format&fit=crop".to_string(), price_per_night: 4290000, rating: 3.0, reviews: 75 },
-        Room { id: 9, name: "Phòng gia đình hướng sông".to_string(), category: "Phòng Suite".to_string(), image_url: "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?q=80&w=2940&auto=format&fit=crop".to_string(), price_per_night: 4290000, rating: 3.0, reviews: 75 },
-    ];
+    let (room_types, set_room_types) = signal(vec![]);
+    let (rooms, set_rooms) = signal(vec![]);
+    let (active_tab, set_active_tab) = signal(String::new());
 
-    let (active_tab, set_active_tab) = signal("Phòng khách".to_string());
-    let tabs = vec!["Tất cả", "Phòng khách", "Phòng Suite"];
+    let find_rooms_by_room_id = move |type_id: u64| {
+        spawn_local(async move {
+            match fetch::<(), PaginatedResponse<Room>>(
+                &format!("rooms?roomTypeId={}", type_id),
+                "GET",
+                None,
+            )
+            .await
+            {
+                Err(e) => leptos::logging::error!("{:#?}", e),
+                Ok(res) => {
+                    if res.code == 200 {
+                        set_rooms.set(res.data.unwrap().content);
+                    }
+                }
+            }
+        });
+    };
 
-    let filtered_rooms = Memo::new(move |_| {
-        let current_tab = active_tab.get();
-        if current_tab == "Tất cả" {
-            all_rooms_data.clone()
-        } else {
-            all_rooms_data
-                .iter()
-                .filter(|r| r.category == current_tab)
-                .cloned()
-                .collect::<Vec<_>>()
-        }
+    Effect::new(move || {
+        spawn_local(async move {
+            match fetch2::<(), Vec<RoomType>>("admin/room-type", "GET", None).await {
+                Err(e) => leptos::logging::error!("{:#?}", e),
+                Ok(data) => {
+                    if !data.is_empty() {
+                        let first = data.get(0).unwrap();
+                        set_active_tab.set(first.type_name.clone());
+                        find_rooms_by_room_id(first.id);
+                    }
+                    set_room_types.set(data);
+                }
+            }
+        });
     });
 
     view! {
@@ -83,23 +87,37 @@ pub fn Home() -> impl IntoView {
                     <div class="flex items-center space-x-2">
                         // Tabs
                         <div class="tabs tabs-boxed bg-transparent p-0">
-                             {tabs.into_iter()
-                                .map(|tab_name_str| {
-                                    let tab_name = tab_name_str.to_string();
-                                    let tn = tab_name.clone();
-                                    let is_active = move || active_tab.get() == tn;
-                                    let tab_class = move || if is_active() {
-                                        "tab tab-lg text-xl font-semibold text-teal-custom border-b-2 border-teal-custom"
-                                    } else {
-                                        "tab tab-lg text-xl font-semibold text-gray-500 hover:text-teal-custom"
-                                    };
-                                    let tn_clone = tab_name.clone();
-                                    view! {
-                                        <a class={tab_class} on:click=move |_| set_active_tab.set(tn_clone.clone())>{tab_name}</a>
-                                    }
-                                })
-                                .collect_view()
-                             }
+
+                            <Show
+                                when=move || !room_types.read().is_empty()
+                                fallback=|| view!{ <Spinner /> }
+                            >
+                                {room_types.get().into_iter()
+                                    .map(|room_type: RoomType| {
+                                        let tab_name = room_type.type_name;
+                                        let tn = tab_name.clone();
+                                        let is_active = move || active_tab.get() == tn;
+                                        let tab_class = move || if is_active() {
+                                            "tab tab-lg text-xl font-semibold text-teal-custom border-b-2 border-teal-custom"
+                                        } else {
+                                            "tab tab-lg text-xl font-semibold text-gray-500 hover:text-teal-custom"
+                                        };
+                                        let tn_clone = tab_name.clone();
+                                        view! {
+                                            <a
+                                                class={tab_class}
+                                                on:click=move |_| {
+                                                    find_rooms_by_room_id(room_type.id);
+                                                    set_active_tab.set(tn_clone.clone())
+                                                }
+                                            >
+                                                {tab_name}
+                                            </a>
+                                        }
+                                    })
+                                    .collect_view()
+                                }
+                            </Show>
                         </div>
                          // Navigation Arrows (Decorative)
                         <button class="btn btn-square btn-ghost text-gray-500 hover:text-teal-custom">
@@ -113,13 +131,18 @@ pub fn Home() -> impl IntoView {
 
                 // Room Grid
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <For
-                        each=move || filtered_rooms.get()
-                        key=|room| room.id
-                        let(child)
+                    <Show
+                        when=move || !rooms.read().is_empty()
+                        fallback= || view!{ <Spinner /> }
                     >
-                      <RoomCard room={child.clone()}/>
-                    </For>
+                        <For
+                            each=move || rooms.get()
+                            key=|room| room.id
+                            let(child)
+                        >
+                        <RoomCard room={child.clone()}/>
+                        </For>
+                    </Show>
                 </div>
             </section>
 

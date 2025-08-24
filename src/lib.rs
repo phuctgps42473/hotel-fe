@@ -41,9 +41,9 @@ pub struct PaginatedResponse<T> {
     pub empty: bool,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct RoomType {
-    pub id: i32,
+    pub id: u64,
     #[serde(rename = "typeName")]
     pub type_name: String,
     #[serde(rename = "defaultPrice")]
