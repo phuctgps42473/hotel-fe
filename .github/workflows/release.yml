@@ -38,6 +38,9 @@ jobs:
           rustup target add wasm32-unknown-unknown
           trunk build --release
 
+      - name: Copy vercel.json to dist
+        run: cp vercel.json dist/
+
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
